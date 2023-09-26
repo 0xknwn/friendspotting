@@ -1,0 +1,5 @@
+docker-compose.*.yaml
+.env
+README.md
+!version.sha
+mnemonic.txt

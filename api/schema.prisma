@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trade {
+  hash                            String   @id @unique
+  timestamp                       Int
+  blockNumber                     Int
+  fromAddress                     String
+  subjectAddress                  String
+  isBuy                           Boolean
+  amount                          Int
+  cost                            Decimal  @db.Decimal(65, 0)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime
+  User_Trade_fromAddressToUser    User     @relation("Trade_fromAddressToUser", fields: [fromAddress], references: [address])
+  User_Trade_subjectAddressToUser User     @relation("Trade_subjectAddressToUser", fields: [subjectAddress], references: [address])
+}
+
+model User {
+  address                          String   @id @unique
+  twitterUsername                  String?
+  twitterPfpUrl                    String?
+  profileChecked                   Boolean  @default(false)
+  supply                           Int      @default(0)
+  createdAt                        DateTime @default(now())
+  updatedAt                        DateTime
+  Trade_Trade_fromAddressToUser    Trade[]  @relation("Trade_fromAddressToUser")
+  Trade_Trade_subjectAddressToUser Trade[]  @relation("Trade_subjectAddressToUser")
+}

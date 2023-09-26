@@ -9,7 +9,7 @@ friendmex:
 clean:
 	rm -rf friendmex
 
-friendmex/Dockerfile: friendmex Dockerfile
-	cp Dockerfile friendmex/
+friendmex/indexer/Dockerfile: friendmex Dockerfile
+	cp Dockerfile friendmex/indexer/
 
-import: friendmex/Dockerfile
+import: friendmex/indexer/Dockerfile

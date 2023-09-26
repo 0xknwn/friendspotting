@@ -24,7 +24,19 @@ services:
       - db
       - redis
     build:
-      context: idxr/friendmex/.
+      context: idxr/friendmex/indexer/.
+
+  api:
+    image: api
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
+    ports:
+      - "8084:8080"
+    command: ["npm", "run", "start"]
+    depends_on:
+      - db
+    build:
+      context: api/.
 
 volumes:
   db:
