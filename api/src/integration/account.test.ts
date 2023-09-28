@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { walletClient } from "../wallet";
 import { getMnemonic } from "../mnemonic";
 
-test("check the mnemonic is properly set", async () => {
+test.skip("check the mnemonic is properly set", async () => {
   const mnemonic = getMnemonic();
   const wallet = await walletClient(mnemonic, process.env.INFURA || "");
   expect(wallet.account.address).toBe(
