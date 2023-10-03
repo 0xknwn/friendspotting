@@ -7,10 +7,10 @@
   },
   "main": "server.js",
   "scripts": {
-    "build": "rimraf ./build && tsc && prisma generate",
+    "build": "rimraf ./build && prisma generate && tsc",
     "dist": "npm run version && mkdir -p dist && rm -f dist/idxr-$(cut -c1-10 version.sha).zip && zip -r dist/idxr-$(cut -c1-10 version.sha).zip . -x dist/\\*\\* build/\\*\\* node_modules/\\*\\* .env src/.env",
-    "start": "npm run build && node build/server.js",
-    "start:idxr": "npm run build && node build/idxr.js",
+    "start": "node build/server.js",
+    "start:idxr": "node build/idxr.js",
     "start:dev": "nodemon",
     "test:unit": "vitest -c ./vitest.config.unit.js",
     "test:integration": "vitest -c ./vitest.config.integration.js",
