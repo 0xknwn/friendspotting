@@ -7,7 +7,7 @@ export const connect = (url: string) => {
         url,
       },
     },
-    log: ["query", "info"],
+    log: ["info"],
   });
 };
 

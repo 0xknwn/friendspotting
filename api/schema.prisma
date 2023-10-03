@@ -11,21 +11,21 @@ model Trade {
   transactionHash                 String   @id @unique
   timestamp                       Int
   blockNumber                     Int
-  transactionNumber               Int
+  transactionIndex                Int
   traderAddress                   String
   subjectAddress                  String
   isBuy                           Boolean
   shareAmount                     Int
-  ethAmount                       Decimal  @db.Decimal(65, 0)
-  protocolEthAmount               Decimal  @db.Decimal(65, 0)
-  subjectEthAmount                Decimal  @db.Decimal(65, 0)
+  ethAmount                       BigInt  @db.BigInt
+  protocolEthAmount               BigInt  @db.BigInt
+  subjectEthAmount                BigInt  @db.BigInt
+  supply                          Int
   createdAt                       DateTime @default(now())
   updatedAt                       DateTime
 }
 
 model User {
   address                          String   @id @unique
-  id                               Int
   twitterUsername                  String?
   twitterName                      String?
   twitterPfpUrl                    String?

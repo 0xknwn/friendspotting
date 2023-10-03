@@ -2,7 +2,12 @@ import { publicClient } from "./wallet";
 import { parseAbiItem, Log } from "viem";
 import type { Trade } from "@prisma/client";
 import type { PublicClient } from "viem";
-import { Prisma } from "@prisma/client";
+import { checkUser } from "./twitter";
+import { PrismaClient } from "@prisma/client";
+import { connect } from "./storage";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const blockTimestamp = new Map<bigint, Number>();
 
@@ -14,6 +19,12 @@ const getTimestamp = (blockid: bigint) => {
   return ts;
 };
 
+function wait(delay) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, delay);
+  });
+}
+
 export const currentBlock = async (
   client: PublicClient | undefined = undefined
 ) => {
@@ -24,6 +35,8 @@ export const currentBlock = async (
   blockTimestamp.set(block.number, Number(block.timestamp));
   return block.number;
 };
+
+let lastCollectedBlock = -1;
 
 export const previousTrades = async (
   blockGap: bigint,
@@ -44,45 +57,82 @@ export const previousTrades = async (
   return logs;
 };
 
-export const saveEvent = async (t: Trade) => {
-  console.log("**************");
-  console.log("block:", t.blockNumber);
-  console.log("hash:", t.hash);
-  console.log("**************");
-};
-
-export const manageEvents = async (logs: Log[]) => {
-  logs.forEach((log) => {
-    console.log(log);
-    const t = {
-      hash: log.transactionHash,
-      timestamp: getTimestamp(log.blockNumber || 0n),
-      blockNumber: Number(log.blockNumber),
-      fromAddress: log['args']['trader'],
-      subjectAddress: log['args']['subject'],
-      isBuy: log['args']['isBuy'],
-      amount: Number(log['args']['shareAmount']),
-      cost: new Prisma.Decimal(Number(log['args']['ethAmount'])),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as Trade;
-
-
-    args: {
-      trader: '0x413b25973fe10E474b879Ef31ddDaC17bAc56DB2',
-      subject: '0x413b25973fe10E474b879Ef31ddDaC17bAc56DB2',
-      isBuy: false,
-      shareAmount: 1n,
-      ethAmount: 62500000000000n,
-      protocolEthAmount: 3125000000000n,
-      subjectEthAmount: 3125000000000n,
-      supply: 1n
-    },
-
-    saveEvent(t);
+export const saveEvent = async (prisma: PrismaClient, t: Trade) => {
+  await prisma.trade.upsert({
+    where: { transactionHash: t.transactionHash },
+    update: t,
+    create: t,
   });
 };
 
-previousTrades(10n).then((logs) => {
-  manageEvents(logs);
-});
+export const manageEvents = async (prisma: PrismaClient, logs: Log[]) => {
+  logs.forEach(async (log) => {
+    try {
+      const t = {
+        transactionHash: log.transactionHash,
+        timestamp: Number(getTimestamp(log.blockNumber || 0n)),
+        blockNumber: Number(log.blockNumber),
+        transactionIndex: log["transactionIndex"],
+        traderAddress: log["args"]["trader"].toLowerCase(),
+        subjectAddress: log["args"]["subject"].toLowerCase(),
+        isBuy: log["args"]["isBuy"],
+        shareAmount: Number(log["args"]["shareAmount"]),
+        ethAmount: log["args"]["ethAmount"],
+        protocolEthAmount: log["args"]["protocolEthAmount"],
+        subjectEthAmount: log["args"]["subjectEthAmount"],
+        supply: Number(log["args"]["supply"]),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Trade;
+      await saveEvent(prisma, t);
+      await checkUser(prisma, log["args"]["trader"]);
+    } catch (err) {
+      console.log("error saving event", err);
+      console.log("log", log);
+    }
+  });
+};
+
+const start = async () => {
+  console.log("starting idxr");
+  let current = await currentBlock();
+  let previous = current - 1000n;
+  if (!process.env.DATABASE_URL) {
+    console.log("DATABASE_URL environment variable is missing");
+    process.exit(1);
+  }
+  console.log("connecting to database");
+  const prisma = connect(process.env.DATABASE_URL);
+  console.log("starting block is", previous);
+  while (true) {
+    let current = await currentBlock();
+    let gap = 10n;
+    if (current <= previous) {
+      await wait(1000);
+      continue;
+    }
+    if (current - previous < 10n) {
+      gap = current - previous;
+    }
+    const logs = await previousTrades(gap, previous + gap);
+    console.log(
+      `indexing (${logs.length}) between`,
+      previous,
+      "and",
+      previous + gap,
+      "target ->",
+      current
+    );
+    await manageEvents(prisma, logs);
+    previous += gap;
+    if (gap < 10) {
+      await wait(1000);
+    }
+  }
+};
+
+start()
+  .then((log) => {
+    console.log(log);
+  })
+  .catch((err) => console.warn(err));
