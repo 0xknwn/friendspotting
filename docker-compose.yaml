@@ -14,17 +14,19 @@ services:
   redis:
     image: redis:latest
 
-  indexer:
-    image: indexer
+  idxr:
+    image: api
     environment:
-      - RPC_URL=https://mainnet.base.org
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
       - REDIS_URL=redis:6379
+    ports:
+      - "8085:8080"
+    command: ["npm", "run", "start:idxr"]
     depends_on:
       - db
       - redis
     build:
-      context: idxr/friendmex/indexer/.
+      context: api/.
 
   api:
     image: api

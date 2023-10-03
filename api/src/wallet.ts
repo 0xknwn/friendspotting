@@ -1,12 +1,17 @@
 import { mnemonicToSeed } from "bip39";
-import { createPublicClient, createWalletClient, http } from "viem";
+import {
+  PublicClient,
+  createPublicClient,
+  createWalletClient,
+  http,
+} from "viem";
 import { base } from "viem/chains";
 import { HDKey, hdKeyToAccount } from "viem/accounts";
 
-export const walletClient = async (mnemonic: string, url: string) => {
+export const walletClient = async (mnemonic: string) => {
   const hdkey = HDKey.fromMasterSeed(await mnemonicToSeed(mnemonic));
   const account = hdKeyToAccount(hdkey);
-  const transport = http(url);
+  const transport = http();
   const client = createWalletClient({
     account,
     chain: base,
@@ -15,11 +20,10 @@ export const walletClient = async (mnemonic: string, url: string) => {
   return client;
 };
 
-export const publicClient = async (url: string) => {
-  const transport = http(url);
+export const publicClient = async () => {
   const client = createPublicClient({
     chain: base,
-    transport,
-  });
+    transport: http(),
+  }) as PublicClient;
   return client;
 };
