@@ -15,19 +15,19 @@ The we would need to instantiate the database, to proceed, run:
 
 ```shell
 docker compose -p friendspotting -f docker-compose.yaml \
-  run indexer sh -c "npx prisma migrate dev --name init"
-docker compose -p friendspotting -f docker-compose.yaml \
-  run api sh -c "npx prisma migrate dev --name init"
+  run idxr sh -c "npx prisma migrate dev --name init"
 ```
 
 ```shell
 docker compose -p friendspotting -f docker-compose.yaml \
-  up indexer api -d
-docker compose -p friendspotting logs indexer api -f
+  build api
+docker compose -p friendspotting -f docker-compose.yaml \
+  up idxr api -d
+docker compose -p friendspotting logs idxr api -f
 ```
 
 ## Delete the indexer
 
 ```shell
-docker compose -p friendspotting down --rmi all -v
+docker compose -p friendspotting down idxr --rmi all -v
 ```
