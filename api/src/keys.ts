@@ -9,9 +9,9 @@ export const keyHistory = (prisma: PrismaClient) => {
       return;
     }
     const history = await prisma.trade.findMany({
-      select: { blockNumber: true, supply: true },
+      select: { timestamp: true, supply: true },
       where: { subjectAddress: key },
-      orderBy: [{ timestamp: "desc" }],
+      orderBy: [{ timestamp: "asc", transactionIndex: "asc" }],
     });
     res.json(history);
   };

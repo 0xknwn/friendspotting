@@ -15,7 +15,7 @@ services:
     image: redis:latest
 
   idxr:
-    image: api
+    image: idxr
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
       - REDIS_URL=redis:6379
