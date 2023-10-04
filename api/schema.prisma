@@ -16,9 +16,9 @@ model Trade {
   subjectAddress                  String
   isBuy                           Boolean
   shareAmount                     Int
-  ethAmount                       BigInt  @db.BigInt
-  protocolEthAmount               BigInt  @db.BigInt
-  subjectEthAmount                BigInt  @db.BigInt
+  ethAmount                       Decimal  @db.Decimal(65, 0)
+  protocolEthAmount               Decimal  @db.Decimal(65, 0)
+  subjectEthAmount                Decimal  @db.Decimal(65, 0)
   supply                          Int
   createdAt                       DateTime @default(now())
   updatedAt                       DateTime

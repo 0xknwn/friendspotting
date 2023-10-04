@@ -3,7 +3,7 @@ import { parseAbiItem, Log } from "viem";
 import type { Trade } from "@prisma/client";
 import type { PublicClient } from "viem";
 import { checkUser } from "./twitter";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { connect } from "./storage";
 import * as dotenv from "dotenv";
 
@@ -11,10 +11,18 @@ dotenv.config();
 
 const blockTimestamp = new Map<bigint, Number>();
 
-const getTimestamp = (blockid: bigint) => {
+const getTimestamp = async (
+  blockid: bigint,
+  client: PublicClient | undefined = undefined
+) => {
   const ts = blockTimestamp.get(blockid);
   if (!ts) {
-    return 0;
+    if (!client) {
+      client = (await publicClient()) as PublicClient;
+    }
+    const block = await client.getBlock({ blockNumber: blockid });
+    blockTimestamp.set(block.number, Number(block.timestamp));
+    return Number(block.timestamp);
   }
   return ts;
 };
@@ -66,20 +74,26 @@ export const saveEvent = async (prisma: PrismaClient, t: Trade) => {
 };
 
 export const manageEvents = async (prisma: PrismaClient, logs: Log[]) => {
-  logs.forEach(async (log) => {
+  for (const log of logs) {
     try {
       const t = {
         transactionHash: log.transactionHash,
-        timestamp: Number(getTimestamp(log.blockNumber || 0n)),
+        timestamp: Number(await getTimestamp(log.blockNumber || 0n)),
         blockNumber: Number(log.blockNumber),
         transactionIndex: log["transactionIndex"],
         traderAddress: log["args"]["trader"].toLowerCase(),
         subjectAddress: log["args"]["subject"].toLowerCase(),
         isBuy: log["args"]["isBuy"],
         shareAmount: Number(log["args"]["shareAmount"]),
-        ethAmount: log["args"]["ethAmount"],
-        protocolEthAmount: log["args"]["protocolEthAmount"],
-        subjectEthAmount: log["args"]["subjectEthAmount"],
+        ethAmount: new Prisma.Decimal(
+          BigInt(log["args"]["ethAmount"]).toString()
+        ),
+        protocolEthAmount: new Prisma.Decimal(
+          BigInt(log["args"]["protocolEthAmount"]).toString()
+        ),
+        subjectEthAmount: new Prisma.Decimal(
+          BigInt(log["args"]["subjectEthAmount"]).toString()
+        ),
         supply: Number(log["args"]["supply"]),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -90,7 +104,7 @@ export const manageEvents = async (prisma: PrismaClient, logs: Log[]) => {
       console.log("error saving event", err);
       console.log("log", log);
     }
-  });
+  }
 };
 
 const start = async () => {
