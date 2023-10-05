@@ -40,6 +40,20 @@ services:
     build:
       context: api/.
 
+  sync:
+    image: sync
+    command: ["npm", "run", "start:sync"]
+    environment:
+      MNEMONIC_FILE: /run/secrets/mnemonic.txt
+    secrets:
+      - mnemonic.txt
+    build:
+      context: .
+
 volumes:
   db:
     driver: local
+
+secrets:
+  mnemonic.txt:
+    file: ./mnemonic.txt

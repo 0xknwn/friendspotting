@@ -6,6 +6,7 @@ import { checkUser } from "./twitter";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { connect } from "./storage";
 import * as dotenv from "dotenv";
+import {wait} from "./util"
 
 dotenv.config();
 
@@ -26,12 +27,6 @@ const getTimestamp = async (
   }
   return ts;
 };
-
-function wait(delay) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, delay);
-  });
-}
 
 export const currentBlock = async (
   client: PublicClient | undefined = undefined
