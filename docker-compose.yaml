@@ -45,10 +45,11 @@ services:
     command: ["npm", "run", "start:sync"]
     environment:
       MNEMONIC_FILE: /run/secrets/mnemonic.txt
+      MONITORED_ADDRESS: "0xd85eff2d610132d507ece73e1f37df82774a8d47"
     secrets:
       - mnemonic.txt
     build:
-      context: .
+      context: api/.
 
 volumes:
   db:

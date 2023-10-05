@@ -11,23 +11,30 @@ docker compose -p friendspotting -f docker-compose.yaml \
   up db redis -d
 ```
 
-The we would need to instantiate the database, to proceed, run:
+Then we would need to instantiate the database, to proceed, run:
 
 ```shell
 docker compose -p friendspotting -f docker-compose.yaml \
   run idxr sh -c "npx prisma migrate dev --name init"
 ```
 
+For each one of the existing service, i.e. `api`, `idxr` and `sync`,
+we could build, start and log it:
+
 ```shell
+export SERVICE="api"
 docker compose -p friendspotting -f docker-compose.yaml \
-  build api
+  build ${SERVICE}
 docker compose -p friendspotting -f docker-compose.yaml \
-  up idxr api -d
-docker compose -p friendspotting logs idxr api -f
+  up ${SERVICE} -d
+docker compose -p friendspotting logs ${SERVICE} -f
 ```
 
-## Delete the indexer
+## Delete a service
+
+To stop and remove the image of a service, run:
 
 ```shell
-docker compose -p friendspotting down idxr --rmi all -v
+export SERVICE="api"
+docker compose -p friendspotting down ${SERVICE} --rmi all -v
 ```
