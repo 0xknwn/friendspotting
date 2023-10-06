@@ -8,6 +8,20 @@ import { sourceSupply } from "./source";
 
 dotenv.config();
 
+const monitoredAddresses: Array<Address> = [];
+
+const feedAddresses = () => {
+  if (!process.env.MONITORED_ADDRESSES) {
+    throw "missing variable MONITORED_ADDRESSES";
+  }
+  process.env.MONITORED_ADDRESSES.split(",").forEach((address) => {
+    if (!address || address.slice(0, 2) !== "0x") {
+      throw `unknown address ${address}`;
+    }
+    monitoredAddresses.push(address.toLowerCase() as Address);
+  });
+};
+
 const currentBlock = async (client: PublicClient | undefined = undefined) => {
   if (!client) {
     client = (await publicClient()) as PublicClient;
@@ -35,58 +49,50 @@ const previousTrades = async (
   return logs;
 };
 
-const latestSupply = (logs: Log[]): bigint | undefined => {
-  if (!process.env.MONITORED_ADDRESS) {
-    throw "missing MONITORED_ADDRESS variable";
-  }
-  let supply: bigint | undefined = undefined;
+const latestSupply = (
+  logs: Log[],
+  previousSupply: Map<Address, bigint>
+): Map<Address, bigint> => {
   for (const log of logs) {
-    if (
-      log["args"]["subject"].toLowerCase() ===
-      process.env.MONITORED_ADDRESS.toLowerCase()
-    ) {
-      supply = log["args"]["supply"];
+    if (monitoredAddresses.includes(log["args"]["subject"].toLowerCase())) {
+      previousSupply.set(log["args"]["subject"], log["args"]["supply"]);
     }
   }
-  return supply;
+  return previousSupply;
 };
 
-const sync = async (supply: bigint) => {
-  if (!process.env.MONITORED_ADDRESS) {
-    throw "missing MONITORED_ADDRESS variable";
-  }
-  console.log("sync mock with", supply);
-  const receipt = await setSharesSupply(
-    process.env.MONITORED_ADDRESS as `0x${string}`,
-    supply
-  );
-  if (receipt?.status !== "success") {
-    console.warn(receipt);
-    throw "could not sync the supply";
+const sync = async (supply: Map<Address, bigint>) => {
+  for (let [key, value] of supply) {
+    console.log("sync mock with", key, ":", value);
+    const receipt = await setSharesSupply(key, value);
+    if (receipt?.status !== "success") {
+      console.warn(receipt);
+      throw "could not sync the supply";
+    }
   }
 };
 
 const reSync = async () => {
-  if (!process.env.MONITORED_ADDRESS) {
-    throw "missing MONITORED_ADDRESS variable";
-  }
-  const supply = await sourceSupply(process.env.MONITORED_ADDRESS as Address);
-  const appliedSupply = await getSharesSupply(
-    process.env.MONITORED_ADDRESS as Address
-  );
-  if (supply === appliedSupply) {
-    console.log("mock already synced to", supply);
-    return;
+  const supply = new Map<Address, bigint>();
+  for (let key of monitoredAddresses) {
+    const srcSupply = await sourceSupply(key);
+    const dstSupply = await getSharesSupply(key);
+    if (srcSupply === dstSupply) {
+      console.log("mock already synced to", srcSupply);
+      continue;
+    }
+    supply.set(key, srcSupply);
   }
   await sync(supply);
 };
 
 const start = async () => {
+  feedAddresses();
   await reSync();
   console.log("starting syncing...");
   let current = await currentBlock();
   let previous = current - 1000n;
-  let supply: bigint | undefined = undefined;
+  let supply = new Map<Address, bigint>();
   while (true) {
     let current = await currentBlock();
     let gap = 10n;
@@ -106,12 +112,12 @@ const start = async () => {
       "target ->",
       current
     );
-    supply = await latestSupply(logs);
+    supply = latestSupply(logs, supply);
     previous += gap;
     if (gap < 10) {
       if (supply) {
         await sync(supply);
-        supply = undefined;
+        supply = new Map<Address, bigint>();
       }
       await wait(1000);
     }
