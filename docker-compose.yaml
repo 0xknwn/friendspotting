@@ -45,7 +45,7 @@ services:
     command: ["npm", "run", "start:sync"]
     environment:
       MNEMONIC_FILE: /run/secrets/mnemonic.txt
-      MONITORED_ADDRESSES: "0xef42b587e4a3d33f88fa499be1d80c676ff7a226,0xd85eff2d610132d507ece73e1f37df82774a8d47"
+      MONITORED_ADDRESSES: "0xa84bd0e9646170b91c75a999332954a15e4969b3,0xf0a5a3b09a919c7fe826ea0d9482e8d377952821,0xf9b7cf4be6f4cde37dd1a5b75187d431d94a4fcc,0xef42b587e4a3d33f88fa499be1d80c676ff7a226,0x5479f127a4d594208549c86f4b4903a1175a0311,0xd85eff2d610132d507ece73e1f37df82774a8d47"
     secrets:
       - mnemonic.txt
     build:
