@@ -68,7 +68,14 @@ export const idxHistory = (prisma: PrismaClient) => {
       });
     }
     // res.json(data.filter((value) => value.numKeys === 6));
-    res.json(data);
+    res.json(
+      data.map(({ timestamp, supplies, numKeys, value }) => ({
+        timestamp,
+        supplies,
+        numKeys,
+        value: Number(value / 10n ** 12n) / 10 ** 6,
+      }))
+    );
   };
 };
 
