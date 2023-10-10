@@ -51,17 +51,13 @@ export const idxHistory = (prisma: PrismaClient) => {
       value: bigint;
     }> = [];
     for (let k = 0; k < history.length; k++) {
-      let supplies = {} as Map<Address, number>;
+      let supplies = new Map<Address, number>();
       if (k > 0) {
-        supplies = {
-          ...data[k - 1].supplies,
-          ...new Map([
-            [history[k].subjectAddress as Address, history[k].supply],
-          ]),
-        };
+        supplies = data[k - 1].supplies;
+        supplies.set(history[k].subjectAddress as Address, history[k].supply);
       }
       let value = 0n;
-      for (const z of supplies.values()) {
+      for (let z of supplies.values()) {
         value += getPrice(z, 1);
       }
       data.push({
