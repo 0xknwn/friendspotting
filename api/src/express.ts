@@ -1,7 +1,7 @@
 import cors from "cors";
 import express, { Request, Response } from "express";
 import morgan from "morgan";
-import { keyHistory } from "./keys";
+import { idxHistory, keyHistory } from "./keys";
 import { connect } from "./storage";
 
 const server = express();
@@ -16,6 +16,7 @@ server.use(cors());
 server.use(morgan("combined"));
 
 server.get("/keys/:key/history", keyHistory(prisma));
+server.get("/indexes/:idx", idxHistory(prisma));
 
 server.get("/", (_req: Request, res: Response) =>
   res.status(404).json({
