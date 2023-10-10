@@ -61,8 +61,8 @@ export const idxHistory = (prisma: PrismaClient) => {
         };
       }
       let value = 0n;
-      for (const z of supplies) {
-        value += getPrice(z[1], 1);
+      for (const z of supplies.values()) {
+        value += getPrice(z, 1);
       }
       data.push({
         timestamp: history[k].timestamp,
