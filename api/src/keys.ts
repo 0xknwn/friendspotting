@@ -1,6 +1,7 @@
 import Express from "express";
 import { PrismaClient } from "@prisma/client";
 import { Address } from "viem";
+import { price } from "./price";
 
 export const keyHistory = (prisma: PrismaClient) => {
   return async (req: Express.Request, res: Express.Response) => {
@@ -18,6 +19,7 @@ export const keyHistory = (prisma: PrismaClient) => {
   };
 };
 
+// TODO: save and query redis to make it faster
 export const idxHistory = (prisma: PrismaClient) => {
   return async (req: Express.Request, res: Express.Response) => {
     const indexes: Map<string, Address[]> = new Map([
@@ -60,7 +62,7 @@ export const idxHistory = (prisma: PrismaClient) => {
       suppliesHistory.push(supplies);
       let value = 0n;
       for (let z of supplies.values()) {
-        value += getPrice(z, 1);
+        value += price(z, 1);
       }
       data.push({
         timestamp: history[k].timestamp,
@@ -69,7 +71,6 @@ export const idxHistory = (prisma: PrismaClient) => {
         value,
       });
     }
-    // res.json(data.filter((value) => value.numKeys === 6));
     res.json(
       data.map(({ timestamp, supplies, numKeys, value }) => ({
         timestamp,
@@ -79,18 +80,4 @@ export const idxHistory = (prisma: PrismaClient) => {
       }))
     );
   };
-};
-
-export const getPrice = (supply: number, amount: number): bigint => {
-  const sum1 =
-    supply === 0 ? 0 : ((supply - 1) * supply * (2 * (supply - 1) + 1)) / 6;
-  const sum2 =
-    supply === 0 && amount === 1
-      ? 0
-      : ((supply - 1 + amount) *
-          (supply + amount) *
-          (2 * (supply - 1 + amount) + 1)) /
-        6;
-  const summation = BigInt((sum2 - sum1) * 10 ** 6);
-  return (summation * 10n ** 12n) / 16000n;
 };

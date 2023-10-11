@@ -13,7 +13,7 @@
     "start:idxr": "node build/idxr.js",
     "start:sync": "node build/sync.js",
     "start:dev": "nodemon",
-    "test:unit": "vitest -c ./vitest.config.unit.js",
+    "test:unit": "vitest -c ./vitest.config.unit.js --silent=false",
     "test:integration": "vitest -c ./vitest.config.integration.js",
     "version": "git log --format=%H -1 . >version.sha"
   },
