@@ -9,6 +9,34 @@ scrape_configs:
     relabel_configs:
       - target_label: service
         replacement: api
+  - job_name: idxr
+    static_configs:
+      - targets:
+          - idxr:8081
+    relabel_configs:
+      - target_label: service
+        replacement: idxr
+  - job_name: sync
+    static_configs:
+      - targets:
+          - sync:8081
+    relabel_configs:
+      - target_label: service
+        replacement: sync
+  - job_name: aggr
+    static_configs:
+      - targets:
+          - aggr:8081
+    relabel_configs:
+      - target_label: service
+        replacement: aggr
+  - job_name: sscr
+    static_configs:
+      - targets:
+          - sscr:8081
+    relabel_configs:
+      - target_label: service
+        replacement: sscr
 
 alerting:
   alertmanagers:

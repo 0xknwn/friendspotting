@@ -6,7 +6,11 @@ import { checkUser } from "./twitter";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { connect } from "./storage";
 import * as dotenv from "dotenv";
-import {wait} from "./util"
+import { wait } from "./util";
+import { adminServer } from "./admin";
+import { exit } from "process";
+
+const admin_port = process.env.ADMIN_PORT || "8081";
 
 dotenv.config();
 
@@ -103,40 +107,49 @@ export const manageEvents = async (prisma: PrismaClient, logs: Log[]) => {
 };
 
 const start = async () => {
-  console.log("starting idxr");
-  let current = await currentBlock();
-  let previous = current - 1000n;
-  if (!process.env.DATABASE_URL) {
-    console.log("DATABASE_URL environment variable is missing");
-    process.exit(1);
-  }
-  console.log("connecting to database");
-  const prisma = connect(process.env.DATABASE_URL);
-  console.log("starting block is", previous);
-  while (true) {
+  console.log("starting adminServer");
+  adminServer.listen(admin_port, () => {
+    console.log(`administration started on port ${admin_port}`);
+  });
+  try {
+    console.log("starting idxr");
     let current = await currentBlock();
-    let gap = 10n;
-    if (current <= previous) {
-      await wait(1000);
-      continue;
+    let previous = current - 1000n;
+    if (!process.env.DATABASE_URL) {
+      console.log("DATABASE_URL environment variable is missing");
+      process.exit(1);
     }
-    if (current - previous < 10n) {
-      gap = current - previous;
+    console.log("connecting to database");
+    const prisma = connect(process.env.DATABASE_URL);
+    console.log("starting block is", previous);
+    while (true) {
+      let current = await currentBlock();
+      let gap = 10n;
+      if (current <= previous) {
+        await wait(1000);
+        continue;
+      }
+      if (current - previous < 10n) {
+        gap = current - previous;
+      }
+      const logs = await previousTrades(gap, previous + gap);
+      console.log(
+        `indexing (${logs.length}) between`,
+        previous,
+        "and",
+        previous + gap,
+        "target ->",
+        current
+      );
+      await manageEvents(prisma, logs);
+      previous += gap;
+      if (gap < 10) {
+        await wait(1000);
+      }
     }
-    const logs = await previousTrades(gap, previous + gap);
-    console.log(
-      `indexing (${logs.length}) between`,
-      previous,
-      "and",
-      previous + gap,
-      "target ->",
-      current
-    );
-    await manageEvents(prisma, logs);
-    previous += gap;
-    if (gap < 10) {
-      await wait(1000);
-    }
+  } catch (err) {
+    console.log("error on job", err);
+    process.exit(1);
   }
 };
 

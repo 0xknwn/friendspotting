@@ -5,11 +5,12 @@
   "engines": {
     "node": ">=20.8.0"
   },
-  "main": "server.js",
+  "main": "api.js",
   "scripts": {
     "build": "rimraf ./build && prisma generate && tsc",
     "dist": "npm run version && mkdir -p dist && rm -f dist/idxr-$(cut -c1-10 version.sha).zip && zip -r dist/idxr-$(cut -c1-10 version.sha).zip . -x dist/\\*\\* build/\\*\\* node_modules/\\*\\* .env src/.env",
-    "start": "node build/server.js",
+    "start": "node build/api.js",
+    "start:api": "node build/api.js",
     "start:aggr": "node build/aggr.js",
     "start:idxr": "node build/idxr.js",
     "start:sscr": "node build/sscr.js",

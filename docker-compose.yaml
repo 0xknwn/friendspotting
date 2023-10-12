@@ -47,7 +47,7 @@ services:
       - REDIS_HOST=redis
     ports:
       - "8084:8080"
-    command: ["npm", "run", "start"]
+    command: ["npm", "run", "start:api"]
     depends_on:
       - db
       - redis
