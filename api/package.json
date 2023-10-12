@@ -12,6 +12,7 @@
     "start": "node build/server.js",
     "start:aggr": "node build/aggr.js",
     "start:idxr": "node build/idxr.js",
+    "start:sscr": "node build/sscr.js",
     "start:sync": "node build/sync.js",
     "start:dev": "nodemon",
     "test:unit": "vitest -c ./vitest.config.unit.js --silent=false",

@@ -1,7 +1,21 @@
 import { Queue, QueueEvents } from "bullmq";
+import * as dotenv from "dotenv";
 
-const queue = new Queue("request-response");
-const queueEvents = new QueueEvents("request-response");
+dotenv.config();
+
+const queue = new Queue("request-response", {
+  connection: {
+    host: process.env.REDIS_HOST || "localhost",
+    port: 6973,
+  },
+});
+
+const queueEvents = new QueueEvents("request-response", {
+  connection: {
+    host: process.env.REDIS_HOST || "localhost",
+    port: 6973,
+  },
+});
 
 queueEvents.on("completed", ({ jobId }) => {
   console.log("done painting, jobid:", jobId);
