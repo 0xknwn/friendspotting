@@ -57,6 +57,7 @@ services:
 
   prometheus:
     image: prometheus
+    user: root
     ports:
       - "127.0.0.1:9090:9090"
     depends_on:
