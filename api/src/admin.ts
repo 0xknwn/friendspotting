@@ -8,17 +8,7 @@ import { version } from "./version";
 export const admin = express();
 admin.use(express.json());
 admin.use(morgan("combined"));
-const metricsMiddleware = promBundle({
-  includeMethod: true,
-  includePath: true,
-  includeStatusCode: true,
-  includeUp: true,
-  customLabels: { application: "friendspotting" },
-  promClient: {
-    collectDefaultMetrics: {},
-  },
-});
-admin.use(metricsMiddleware);
+admin.use("/metrics", promBundle.clusterMetrics());
 
 admin.get("/version", (_req: Request, res: Response) =>
   res.status(200).json({
