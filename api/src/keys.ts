@@ -19,6 +19,36 @@ export const keyHistory = (prisma: PrismaClient) => {
   };
 };
 
+export const traderHistory = (prisma: PrismaClient, days: number) => {
+  return async (req: Express.Request, res: Express.Response) => {
+    let trader = req.params.trader;
+    if (!trader || !trader.startsWith("0x")) {
+      res.sendStatus(404).json({ status: "NotFound" });
+      return;
+    }
+    const now = Math.floor(new Date().getTime() / 1000);
+    const timestamp = now - (now % 86400) - days * 86400;
+    const history = await prisma.trade.findMany({
+      select: {
+        subjectAddress: true,
+        timestamp: true,
+        ethAmount: true,
+        isBuy: true,
+        supply: true,
+      },
+      where: {
+        traderAddress: trader,
+        timestamp: {
+          gte: timestamp,
+          lt: timestamp + 86400,
+        },
+      },
+      orderBy: [{ subjectAddress: "asc" }, { timestamp: "asc" }],
+    });
+    res.json(history);
+  };
+};
+
 /**
  * @todo save and query redis to make it faster
  */
