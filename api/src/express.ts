@@ -29,7 +29,7 @@ const metricsMiddleware = promBundle({
     collectDefaultMetrics: {},
   },
 });
-admin.use(metricsMiddleware);
+server.use(metricsMiddleware);
 
 server.get("/keys/:key/history", keyHistory(prisma));
 server.get("/indexes/:idx", idxHistory(prisma));
