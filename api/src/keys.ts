@@ -84,20 +84,33 @@ export const idxHistory = (prisma: PrismaClient) => {
   };
 };
 
+export const top = async (prisma: PrismaClient, timestamp: number) => {
+  const stats = await prisma.dailyStats.findMany({
+    select: { traderAddress: true, realized: true, potential: true },
+    where: { timestamp },
+    orderBy: [{ timestamp: "asc" }, { realized: "desc" }, { realized: "desc" }],
+    take: 50,
+  });
+  const x = [] as {
+    traderAddress: Address;
+    realized: number;
+    potential: number;
+  }[];
+  stats.forEach(({ traderAddress, realized, potential }) => {
+    const field = {
+      traderAddress: traderAddress as Address,
+      realized: Number(BigInt(realized.toString())) / 10 ** 9,
+      potential: Number(BigInt(potential.toString())) / 10 ** 9,
+    };
+    x.push(field);
+  });
+  return x;
+};
+
 export const top50 = (prisma: PrismaClient, days: number) => {
   return async (req: Express.Request, res: Express.Response) => {
     const now = new Date().getTime();
     const timestamp = now - (now % 86400) - days * 86400;
-    const stats = await prisma.dailyStats.findMany({
-      select: { traderAddress: true, realized: true, potential: true },
-      where: { timestamp },
-      orderBy: [
-        { timestamp: "asc" },
-        { realized: "desc" },
-        { realized: "desc" },
-      ],
-      take: 50,
-    });
-    res.json(stats);
+    res.json(await top(prisma, timestamp));
   };
 };

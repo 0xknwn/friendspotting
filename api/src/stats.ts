@@ -282,10 +282,7 @@ export const saveTradersPerformance = async (
         BigInt(Math.trunc(traderPerformance.realized * 10 ** 9)).toString()
       ),
       potential: new Prisma.Decimal(
-        (
-          BigInt(Math.trunc(traderPerformance.potential * 10 ** 9)) *
-          10n ** 9n
-        ).toString()
+        BigInt(Math.trunc(traderPerformance.potential * 10 ** 9)).toString()
       ),
       createdAt: new Date(),
       updatedAt: new Date(),
