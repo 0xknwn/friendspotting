@@ -6,14 +6,14 @@ dotenv.config();
 const queue = new Queue("request-response", {
   connection: {
     host: process.env.REDIS_HOST || "localhost",
-    port: 6973,
+    port: 6379,
   },
 });
 
 const queueEvents = new QueueEvents("request-response", {
   connection: {
     host: process.env.REDIS_HOST || "localhost",
-    port: 6973,
+    port: 6379,
   },
 });
 

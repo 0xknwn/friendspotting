@@ -15,7 +15,7 @@ const start = () => {
     {
       connection: {
         host: process.env.REDIS_HOST || "localhost",
-        port: 6973,
+        port: 6379,
       },
     }
   );
