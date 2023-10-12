@@ -19,6 +19,66 @@ export const keyHistory = (prisma: PrismaClient) => {
   };
 };
 
+const _traderHistory = async (
+  prisma: PrismaClient,
+  days: number,
+  trader: Address
+) => {
+  const now = Math.floor(new Date().getTime() / 1000);
+  const timestamp = now - (now % 86400) - days * 86400;
+  const history = await prisma.trade.findMany({
+    select: {
+      subjectAddress: true,
+      timestamp: true,
+      ethAmount: true,
+      shareAmount: true,
+      isBuy: true,
+      supply: true,
+    },
+    where: {
+      traderAddress: trader,
+      timestamp: {
+        gte: timestamp,
+        lt: timestamp + 86400,
+      },
+    },
+    orderBy: [{ subjectAddress: "asc" }, { timestamp: "asc" }],
+  });
+  const result = {} as {
+    [k: Address]: {
+      timestamp: number;
+      ethAmount: number;
+      shareAmount: number;
+      isBuy: boolean;
+      supply: number;
+    }[];
+  };
+  history.forEach(
+    ({ subjectAddress, timestamp, ethAmount, shareAmount, isBuy, supply }) => {
+      const key = {
+        timestamp,
+        ethAmount: Number(BigInt(ethAmount.toString()) / 10n ** 12n) / 10 ** 6,
+        shareAmount,
+        isBuy,
+        supply,
+      } as {
+        timestamp: number;
+        ethAmount: number;
+        shareAmount: number;
+        isBuy: boolean;
+        supply: number;
+      };
+      if (!result[subjectAddress]) {
+        result[subjectAddress] = [];
+      }
+      const keys = result[subjectAddress];
+      keys.push(key);
+      result[subjectAddress as Address] = keys;
+    }
+  );
+  return result;
+};
+
 export const traderHistory = (prisma: PrismaClient, days: number) => {
   return async (req: Express.Request, res: Express.Response) => {
     let trader = req.params.trader;
@@ -26,26 +86,7 @@ export const traderHistory = (prisma: PrismaClient, days: number) => {
       res.sendStatus(404).json({ status: "NotFound" });
       return;
     }
-    const now = Math.floor(new Date().getTime() / 1000);
-    const timestamp = now - (now % 86400) - days * 86400;
-    const history = await prisma.trade.findMany({
-      select: {
-        subjectAddress: true,
-        timestamp: true,
-        ethAmount: true,
-        isBuy: true,
-        supply: true,
-      },
-      where: {
-        traderAddress: trader,
-        timestamp: {
-          gte: timestamp,
-          lt: timestamp + 86400,
-        },
-      },
-      orderBy: [{ subjectAddress: "asc" }, { timestamp: "asc" }],
-    });
-    res.json(history);
+    res.json(await _traderHistory(prisma, days, trader as Address));
   };
 };
 
@@ -144,3 +185,5 @@ export const top50 = (prisma: PrismaClient, days: number) => {
     res.json(await top(prisma, timestamp));
   };
 };
+
+export const _unittest = { _traderHistory };

@@ -1,17 +1,16 @@
 import { expect, test } from "vitest";
 import { connect } from "../storage";
-import { top } from "../keys";
+import { top, _unittest } from "../keys";
 
-test.skip("Test the project works as expected", async () => {
-  expect(true).toBe(true);
-});
+const { _traderHistory } = _unittest;
 
-test("query top 50", async () => {
+test.skip("top 50", async () => {
   expect(process.env.DATABASE_URL).toBe(
     "postgres://postgres:postgres@localhost:5432/postgres?schema=postgres"
   );
   const prisma = connect(process.env.DATABASE_URL || "", [
     "info",
+    "query",
     "warn",
     "error",
   ]);
@@ -19,4 +18,20 @@ test("query top 50", async () => {
   const timestamp = now - (now % 86400);
   const v = await top(prisma, timestamp);
   expect(v.length).toBe(50);
+});
+
+test.skip("trader 0x497e29d685d006e885b2eee7fe2fdc7febecbf75", async () => {
+  expect(process.env.DATABASE_URL).toBe(
+    "postgres://postgres:postgres@localhost:5432/postgres?schema=postgres"
+  );
+  if (!process.env.DATABASE_URL) {
+    return;
+  }
+  const prisma = connect(process.env.DATABASE_URL, ["info", "warn", "error"]);
+  const history = await _traderHistory(
+    prisma,
+    0,
+    `0x497e29d685d006e885b2eee7fe2fdc7febecbf75`
+  );
+  console.log(JSON.stringify(history, null, 2));
 });
