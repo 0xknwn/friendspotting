@@ -5,18 +5,9 @@ import promBundle from "express-prom-bundle";
 
 import { version } from "./version";
 
-const admin = express();
+export const admin = express();
 admin.use(express.json());
 admin.use(morgan("combined"));
-
-admin.get("/version", (_req: Request, res: Response) =>
-  res.status(200).json({
-    status: "OK",
-    application: "friendspotting",
-    version,
-  })
-);
-
 const metricsMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
@@ -29,4 +20,11 @@ const metricsMiddleware = promBundle({
 });
 admin.use(metricsMiddleware);
 
+admin.get("/version", (_req: Request, res: Response) =>
+  res.status(200).json({
+    status: "OK",
+    application: "friendspotting",
+    version,
+  })
+);
 export const adminServer = createServer(admin);
