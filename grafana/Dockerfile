@@ -1,3 +1,4 @@
 FROM grafana/grafana:10.1.5-ubuntu
 
-ADD . /etc/grafana/provisioning/
+ADD provisioning /etc/grafana/provisioning/
+ADD dashboards /etc/dashboards/
