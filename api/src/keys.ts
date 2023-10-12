@@ -109,7 +109,7 @@ export const top = async (prisma: PrismaClient, timestamp: number) => {
 
 export const top50 = (prisma: PrismaClient, days: number) => {
   return async (req: Express.Request, res: Express.Response) => {
-    const now = new Date().getTime();
+    const now = Math.floor(new Date().getTime() / 1000);
     const timestamp = now - (now % 86400) - days * 86400;
     res.json(await top(prisma, timestamp));
   };
