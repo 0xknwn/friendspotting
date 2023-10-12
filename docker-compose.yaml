@@ -46,7 +46,7 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
       - REDIS_HOST=redis
     ports:
-      - "127.0.0.1:8084:8080"
+      - "8084:8080"
     command: ["npm", "run", "start"]
     depends_on:
       - db
