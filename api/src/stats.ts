@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { Address } from "viem";
 import { tradingGain } from "./price";
 import { querySubjectTradersOverTime } from "./side-effects/stats";
@@ -52,6 +52,12 @@ const _mapSubjectTradersOverTime = async (
   const map = new Map<Address, subjectTradersHistory>();
   let currentSubjectAddress: Address | undefined = undefined;
   let traderHistory: Trade[] | undefined = undefined;
+  const result = await querySubjectTradersOverTime(
+    prisma,
+    part,
+    startTimestamp,
+    endTimestamp
+  );
   for (let {
     isBuy,
     shareAmount,
@@ -59,12 +65,7 @@ const _mapSubjectTradersOverTime = async (
     supply,
     timestamp,
     traderAddress,
-  } of await querySubjectTradersOverTime(
-    prisma,
-    part,
-    startTimestamp,
-    endTimestamp
-  )) {
+  } of result) {
     let subject = map.get(subjectAddress as Address);
     if (!subject) {
       currentSubjectAddress = subjectAddress as Address;
@@ -121,42 +122,42 @@ const _computeTradersSubjectsOverTime = (
           sales.push({ timestamp, supply, amount, isBuy });
           continue;
         }
-        const lastSale = sales.shift();
-        if (!lastSale) {
-          traderPerformance.potential += tradingGain(supply, endSupply, amount);
-          continue;
-        }
         while (amount > 0) {
-          if (lastSale) {
-            if (amount < lastSale.amount) {
-              sales.unshift({
-                timestamp,
-                supply: lastSale.supply - amount,
-                amount: lastSale.amount - amount,
-                isBuy,
-              });
-              traderPerformance.realized += tradingGain(
-                lastSale.supply - amount,
-                supply,
-                amount
-              );
-              continue;
-            }
-            traderPerformance.realized += tradingGain(
+          /**
+           * @todo fix the infinite loop
+           */
+          const lastSale = sales.shift();
+          if (!lastSale) {
+            traderPerformance.potential += tradingGain(
               supply,
-              lastSale.supply,
-              lastSale.amount
+              endSupply,
+              amount
             );
-            amount -= lastSale.amount;
-            supply -= lastSale.amount;
+            break;
+          }
+          if (amount < lastSale.amount) {
+            sales.unshift({
+              timestamp,
+              supply: lastSale.supply - amount,
+              amount: lastSale.amount - amount,
+              isBuy,
+            });
+            traderPerformance.realized += tradingGain(
+              lastSale.supply - amount,
+              supply,
+              amount
+            );
+            amount = 0;
+            supply = supply - amount;
             continue;
           }
           traderPerformance.realized += tradingGain(
-            startSupply,
             supply,
-            amount
+            lastSale.supply,
+            lastSale.amount
           );
-          break;
+          amount -= lastSale.amount;
+          supply -= lastSale.amount;
         }
       }
       for (let { timestamp, supply, amount, isBuy } of sales) {
@@ -265,6 +266,50 @@ export const computeTradersOverTime = async (
     }
   }
   return mapTradersPerformance;
+};
+
+export const saveTradersPerformance = async (
+  prisma: PrismaClient,
+  timestamp: number,
+  map: mapTradersPerformance
+) => {
+  for (let [trader, traderPerformance] of map.entries()) {
+    const d = {
+      timestamp,
+      traderAddress: trader as Address,
+      partKey: "0x",
+      realized: new Prisma.Decimal(
+        BigInt(Math.trunc(traderPerformance.realized * 10 ** 9)).toString()
+      ),
+      potential: new Prisma.Decimal(
+        (
+          BigInt(Math.trunc(traderPerformance.potential * 10 ** 9)) *
+          10n ** 9n
+        ).toString()
+      ),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    try {
+      await prisma.dailyStats.upsert({
+        where: {
+          timestamp_traderAddress_partKey: {
+            timestamp: d.timestamp as number,
+            traderAddress: d.traderAddress as Address,
+            partKey: d.partKey as string,
+          },
+        },
+        update: d,
+        create: d,
+      });
+    } catch (err) {
+      console.warn(
+        "could not find or insert dailysyays with address",
+        d.traderAddress
+      );
+      console.warn("error", err);
+    }
+  }
 };
 
 export const _unittest = {

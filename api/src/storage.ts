@@ -1,13 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 
-export const connect = (url: string) => {
+export const connect = (
+  url: string,
+  logLevel: Prisma.LogLevel[] = ["info"]
+) => {
   return new PrismaClient({
     datasources: {
       db: {
         url,
       },
     },
-    log: ["info"],
+    log: logLevel,
   });
 };
 

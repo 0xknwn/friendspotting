@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import type { DailyStatsBySubject, DailyStats } from "@prisma/client";
 
 export const querySubjectTradersOverTime = async (
   prisma: PrismaClient,
@@ -40,3 +41,5 @@ export const querySubjectTradersOverTime = async (
     ],
   });
 };
+
+export const manageStats = async (prisma: PrismaClient) => {};

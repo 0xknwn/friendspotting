@@ -22,6 +22,56 @@ model Trade {
   supply                          Int
   createdAt                       DateTime @default(now())
   updatedAt                       DateTime
+
+  @@unique([subjectAddress, timestamp(sort: Desc), transactionIndex(sort: Desc)])
+}
+
+model WeeklyStatsBySubject {
+  timestamp                       Int 
+  traderAddress                   String 
+  subjectAddress                  String
+  realized                        Decimal  @db.Decimal(65, 0)
+  potential                       Decimal  @db.Decimal(65, 0)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime
+  
+  @@id([timestamp, traderAddress, subjectAddress])
+}
+
+model WeeklyStats {
+  timestamp                       Int
+  traderAddress                   String
+  partKey                         String
+  realized                        Decimal  @db.Decimal(65, 0)
+  potential                       Decimal  @db.Decimal(65, 0)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime
+
+  @@id([timestamp, traderAddress, partKey])
+}
+
+model DailyStatsBySubject {
+  timestamp                       Int
+  traderAddress                   String
+  subjectAddress                  String
+  realized                        Decimal  @db.Decimal(65, 0)
+  potential                       Decimal  @db.Decimal(65, 0)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime
+
+  @@id([timestamp, traderAddress, subjectAddress])
+}
+
+model DailyStats {
+  timestamp                       Int
+  traderAddress                   String
+  partKey                         String
+  realized                        Decimal  @db.Decimal(65, 0)
+  potential                       Decimal  @db.Decimal(65, 0)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime
+
+  @@id([timestamp, traderAddress, partKey])
 }
 
 model User {

@@ -28,6 +28,20 @@ services:
     build:
       context: api/.
 
+  aggr:
+    image: aggr
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      - REDIS_URL=redis:6379
+    ports:
+      - "8085:8080"
+    command: ["npm", "run", "start:aggr"]
+    depends_on:
+      - db
+      - redis
+    build:
+      context: api/.
+
   api:
     image: api
     environment:
