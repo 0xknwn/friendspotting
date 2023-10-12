@@ -1,6 +1,7 @@
 import { CronJob } from "cron";
 import { connect } from "./storage";
 import { computeTradersOverTime, saveTradersPerformance } from "./stats";
+import { adminServer } from "./admin";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -26,3 +27,9 @@ const computeByDay = async () => {
 };
 
 const job = new CronJob("0 7 * * * *", computeByDay, null, true);
+
+const admin_port = process.env.ADMIN_PORT || "8081";
+
+adminServer.listen(admin_port, () => {
+  console.log(`administration started on port ${admin_port}`);
+});

@@ -10,9 +10,9 @@ import { wait } from "./util";
 import { adminServer } from "./admin";
 import { exit } from "process";
 
-const admin_port = process.env.ADMIN_PORT || "8081";
-
 dotenv.config();
+
+const admin_port = process.env.ADMIN_PORT || "8081";
 
 const blockTimestamp = new Map<bigint, Number>();
 
@@ -149,7 +149,7 @@ const start = async () => {
     }
   } catch (err) {
     console.log("error on job", err);
-    process.exit(1);
+    exit(1);
   }
 };
 

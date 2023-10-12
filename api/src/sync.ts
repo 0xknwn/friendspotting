@@ -5,6 +5,8 @@ import * as dotenv from "dotenv";
 import { wait } from "./util";
 import { setSharesSupply, getSharesSupply } from "./friendtech";
 import { sourceSupply } from "./source";
+import { adminServer } from "./admin";
+import { exit } from "process";
 
 dotenv.config();
 
@@ -86,41 +88,51 @@ const reSync = async () => {
   await sync(supply);
 };
 
+const admin_port = process.env.ADMIN_PORT || "8081";
+
 const start = async () => {
-  feedAddresses();
-  await reSync();
-  console.log("starting syncing...");
-  let current = await currentBlock();
-  let previous = current - 1000n;
-  let supply = new Map<Address, bigint>();
-  while (true) {
+  adminServer.listen(admin_port, () => {
+    console.log(`administration started on port ${admin_port}`);
+  });
+  try {
+    feedAddresses();
+    await reSync();
+    console.log("starting syncing...");
     let current = await currentBlock();
-    let gap = 10n;
-    if (current <= previous) {
-      await wait(1000);
-      continue;
-    }
-    if (current - previous < 10n) {
-      gap = current - previous;
-    }
-    const logs = await previousTrades(gap, previous + gap);
-    console.log(
-      `indexing (${logs.length}) between`,
-      previous,
-      "and",
-      previous + gap,
-      "target ->",
-      current
-    );
-    supply = latestSupply(logs, supply);
-    previous += gap;
-    if (gap < 10) {
-      if (supply) {
-        await sync(supply);
-        supply = new Map<Address, bigint>();
+    let previous = current - 1000n;
+    let supply = new Map<Address, bigint>();
+    while (true) {
+      let current = await currentBlock();
+      let gap = 10n;
+      if (current <= previous) {
+        await wait(1000);
+        continue;
       }
-      await wait(1000);
+      if (current - previous < 10n) {
+        gap = current - previous;
+      }
+      const logs = await previousTrades(gap, previous + gap);
+      console.log(
+        `indexing (${logs.length}) between`,
+        previous,
+        "and",
+        previous + gap,
+        "target ->",
+        current
+      );
+      supply = latestSupply(logs, supply);
+      previous += gap;
+      if (gap < 10) {
+        if (supply) {
+          await sync(supply);
+          supply = new Map<Address, bigint>();
+        }
+        await wait(1000);
+      }
     }
+  } catch (err) {
+    console.log("error on job", err);
+    exit(1);
   }
 };
 
