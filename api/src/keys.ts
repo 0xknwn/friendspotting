@@ -19,7 +19,9 @@ export const keyHistory = (prisma: PrismaClient) => {
   };
 };
 
-// TODO: save and query redis to make it faster
+/**
+ * @todo save and query redis to make it faster
+ */
 export const idxHistory = (prisma: PrismaClient) => {
   return async (req: Express.Request, res: Express.Response) => {
     const indexes: Map<string, Address[]> = new Map([
@@ -79,5 +81,23 @@ export const idxHistory = (prisma: PrismaClient) => {
         value: Number(value / 10n ** 12n) / 10 ** 6,
       }))
     );
+  };
+};
+
+export const top50 = (prisma: PrismaClient, days: number) => {
+  return async (req: Express.Request, res: Express.Response) => {
+    const now = new Date().getTime();
+    const timestamp = now - (now % 86400) - days * 86400;
+    const stats = await prisma.dailyStats.findMany({
+      select: { traderAddress: true, realized: true, potential: true },
+      where: { timestamp },
+      orderBy: [
+        { timestamp: "asc" },
+        { realized: "desc" },
+        { realized: "desc" },
+      ],
+      take: 50,
+    });
+    res.json(stats);
   };
 };
