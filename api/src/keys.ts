@@ -105,14 +105,12 @@ export const idxHistory = (prisma: PrismaClient) => {
         new Date().getTime() - beforeRefresh
       } milliseconds`
     );
-    try {
-      const data = await retrieve(`idx/${idx}`);
-      res.json(data);
+    const data = await retrieve(`idx/${idx}`);
+    if (!data) {
+      res.sendStatus(404);
       return;
-    } catch (err) {
-      console.error(`could not retrieve key idx/${idx}`);
     }
-    res.sendStatus(404);
+    res.json(data);
   };
 };
 

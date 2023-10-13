@@ -1,64 +1,36 @@
-import { publicClient } from "./wallet";
-import { parseAbiItem, Log } from "viem";
+import type { Chain } from "viem/chains";
 import type { Trade } from "@prisma/client";
-import type { PublicClient } from "viem";
-import { checkUser } from "./twitter";
-import { PrismaClient, Prisma } from "@prisma/client";
-import { connect } from "./storage";
-import * as dotenv from "dotenv";
-import { wait } from "./util";
+import type { PublicClient, GetBlockReturnType } from "viem";
+
 import { adminServer } from "./admin";
+import { save, retrieve } from "./side-effects/cache";
+import { connect } from "./storage";
+import { checkUser } from "./twitter";
+import { wait, currentBlock } from "./util";
+import { publicClient } from "./wallet";
+
+import { PrismaClient, Prisma } from "@prisma/client";
+import * as dotenv from "dotenv";
 import { exit } from "process";
+import { parseAbiItem, Log } from "viem";
 
 dotenv.config();
 
-/**
- * @todo fix the case below by:
- * - not moving forward in case we cannot get the block with getBlock()
- */
-//  indexing (3) between 5181910n and 5181913n target -> 5181913n
-//  error saving event BlockNotFoundError: Block at number "5181912" could not be found.
-//
-//  Version: viem@1.15.0
-//      at getBlock (/app/node_modules/viem/_cjs/actions/public/getBlock.js:25:15)
-//      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-//      at async getTimestamp (/app/build/idxr.js:45:23)
-//      at async manageEvents (/app/build/idxr.js:88:35)
-//      at async start (/app/build/idxr.js:140:13) {
-//    details: undefined,
-//    docsPath: undefined,
-//    metaMessages: undefined,
-//    shortMessage: 'Block at number "5181912" could not be found.',
-//    version: 'viem@1.15.0'
-//  }
-//  log {
-//    address: '0xcf205808ed36593aa40a44f10c7f7c2f67d4a4d4',
-//    blockHash: '0x68686c724929d3a104362e88aad1c48ac548fb83a2f3059e6bb1306ffc0d7fbe',
-//    blockNumber: 5181912n,
-//    data: '0x000000000000000000000000f97215cd9560b4cb9e81576555bc21d6f4e35e5f0000000000000000000000001b20e1d504e7b09e71e27a749cc4a1aef55ec0d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000258689ac70a8000000000000000000000000000000000000000000000000000001e053af05a2000000000000000000000000000000000000000000000000000001e053af05a200000000000000000000000000000000000000000000000000000000000000000d',
-//    logIndex: 0,
-//    removed: false,
-//    topics: [
-//      '0x2c76e7a47fd53e2854856ac3f0a5f3ee40d15cfaa82266357ea9779c486ab9c3'
-//    ],
-//    transactionHash: '0x3a057f21795090d97f040fcd03b46d4be031fda5826704a5e668a5299450a5ef',
-//    transactionIndex: 1,
-//    args: {
-//      trader: '0xf97215cD9560b4cb9e81576555BC21D6F4e35e5f',
-//      subject: '0x1b20e1D504e7b09E71e27A749cC4A1aEF55ec0d4',
-//      isBuy: false,
-//      shareAmount: 1n,
-//      ethAmount: 10562500000000000n,
-//      protocolEthAmount: 528125000000000n,
-//      subjectEthAmount: 528125000000000n,
-//      supply: 13n
-//    },
-//    eventName: 'Trade'
-//  }
-
 const admin_port = process.env.ADMIN_PORT || "8081";
 
-const blockTimestamp = new Map<bigint, Number>();
+type BlockTimestamp = {
+  set: (blockNumber: bigint, timestamp: number) => Promise<void>;
+  get: (blockNumber: bigint) => Promise<number | null>;
+};
+
+const blockTimestamp: BlockTimestamp = {
+  set: async (blockNumber: bigint, timestamp: number) => {
+    await save(blockNumber.toString(), timestamp);
+  },
+  get: async (blockNumber: bigint) => {
+    return (await retrieve(blockNumber.toString())) as number | null;
+  },
+};
 
 /**
  * @todo store the timestamp in the database to get better
@@ -68,31 +40,36 @@ const getTimestamp = async (
   blockid: bigint,
   client: PublicClient | undefined = undefined
 ) => {
-  const ts = blockTimestamp.get(blockid);
+  const ts = await blockTimestamp.get(blockid);
   if (!ts) {
     if (!client) {
       client = (await publicClient()) as PublicClient;
     }
-    const block = await client.getBlock({ blockNumber: blockid });
-    blockTimestamp.set(block.number, Number(block.timestamp));
-    return Number(block.timestamp);
+    let block: GetBlockReturnType<Chain, false, "latest"> | undefined =
+      undefined;
+    for (let retry = 0; retry < 10; retry++) {
+      try {
+        block = await client.getBlock({ blockNumber: blockid });
+        break;
+      } catch (err) {
+        wait(retry * 1000);
+      }
+    }
+    if (!block) {
+      console.warn(`could not access block ${blockid}`);
+      console.warn(`exit(1)`);
+      exit(1);
+    }
+    try {
+      await blockTimestamp.set(block.number, Number(block.timestamp));
+      return Number(block.timestamp);
+    } catch (err) {
+      console.warn(`could not save the block ${block.number}`);
+      console.warn(`exit(1)`);
+      exit(1);
+    }
   }
   return ts;
-};
-
-/**
- * @todo store the timestamp in the database to get better
- * perf and reliability...
- */
-export const currentBlock = async (
-  client: PublicClient | undefined = undefined
-) => {
-  if (!client) {
-    client = (await publicClient()) as PublicClient;
-  }
-  const block = await client.getBlock();
-  blockTimestamp.set(block.number, Number(block.timestamp));
-  return block.number;
 };
 
 export const previousTrades = async (
@@ -101,7 +78,13 @@ export const previousTrades = async (
 ) => {
   const client = await publicClient();
   if (!toBlock) {
-    toBlock = await currentBlock(client);
+    try {
+      toBlock = await currentBlock(client);
+    } catch (err) {
+      console.warn(`could not get current block, err:`, err);
+      console.warn(`force exit(1)`);
+      exit(1);
+    }
   }
   const logs = await client.getLogs({
     address: "0xCF205808Ed36593aa40a44F10c7f7C2F67d4A4d4",
@@ -152,6 +135,8 @@ export const manageEvents = async (prisma: PrismaClient, logs: Log[]) => {
     } catch (err) {
       console.log("error saving event", err);
       console.log("log", log);
+      console.log(`exit(1)`);
+      exit(1);
     }
   }
 };
@@ -163,7 +148,14 @@ const start = async () => {
   });
   try {
     console.log("starting idxr");
-    let current = await currentBlock();
+    let current = 0n;
+    try {
+      current = await currentBlock();
+    } catch (err) {
+      console.warn(`could not get current block, err:`, err);
+      console.warn(`force exit(1)`);
+      process.exit(1);
+    }
     let previous = current - 1000n;
     if (!process.env.DATABASE_URL) {
       console.log("DATABASE_URL environment variable is missing");
@@ -173,7 +165,14 @@ const start = async () => {
     const prisma = connect(process.env.DATABASE_URL);
     console.log("starting block is", previous);
     while (true) {
-      let current = await currentBlock();
+      let current = 0n;
+      try {
+        current = await currentBlock();
+      } catch (err) {
+        console.warn(`could not get current block, err:`, err);
+        console.warn(`exit(1)`);
+        process.exit(1);
+      }
       let gap = 10n;
       if (current <= previous) {
         await wait(1000);

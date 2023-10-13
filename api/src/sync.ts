@@ -7,6 +7,11 @@ import { setSharesSupply, getSharesSupply } from "./friendtech";
 import { sourceSupply } from "./source";
 import { adminServer } from "./admin";
 import { exit } from "process";
+/**
+ * @todo store the timestamp in the database to get better
+ * perf and reliability...
+ */
+import { currentBlock } from "./util";
 
 dotenv.config();
 
@@ -24,21 +29,19 @@ const feedAddresses = () => {
   });
 };
 
-const currentBlock = async (client: PublicClient | undefined = undefined) => {
-  if (!client) {
-    client = (await publicClient()) as PublicClient;
-  }
-  const block = await client.getBlock();
-  return block.number;
-};
-
 const previousTrades = async (
   blockGap: bigint,
   toBlock: bigint | undefined = undefined
 ) => {
   const client = await publicClient();
   if (!toBlock) {
-    toBlock = await currentBlock(client);
+    try {
+      toBlock = await currentBlock(client);
+    } catch (err) {
+      console.warn(`could not get current block, err:`, err);
+      console.warn(`force exit(1)`);
+      process.exit(1);
+    }
   }
   const logs = await client.getLogs({
     address: "0xCF205808Ed36593aa40a44F10c7f7C2F67d4A4d4",
@@ -98,11 +101,25 @@ const start = async () => {
     feedAddresses();
     await reSync();
     console.log("starting syncing...");
-    let current = await currentBlock();
+    let current = 0n;
+    try {
+      current = await currentBlock();
+    } catch (err) {
+      console.warn(`could not get current block, err:`, err);
+      console.warn(`force exit(1)`);
+      process.exit(1);
+    }
     let previous = current - 1000n;
     let supply = new Map<Address, bigint>();
     while (true) {
-      let current = await currentBlock();
+      let current = 0n;
+      try {
+        current = await currentBlock();
+      } catch (err) {
+        console.warn(`could not get current block, err:`, err);
+        console.warn(`force exit(1)`);
+        process.exit(1);
+      }
       let gap = 10n;
       if (current <= previous) {
         await wait(1000);

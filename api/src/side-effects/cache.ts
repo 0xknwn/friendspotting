@@ -17,7 +17,7 @@ export const save = async (key: string, value: any) => {
 export const retrieve = async (key: string) => {
   const output = await (await client()).get(key);
   if (!output) {
-    throw "could not retrieve the key";
+    return null;
   }
   return JSON.parse(output);
 };
