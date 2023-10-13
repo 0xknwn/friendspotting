@@ -3,36 +3,19 @@ import type { Trade } from "@prisma/client";
 import type { PublicClient, GetBlockReturnType } from "viem";
 
 import { adminServer } from "./admin";
-import { save, retrieve } from "./side-effects/cache";
 import { connect } from "./storage";
 import { checkUser } from "./twitter";
 import { wait, currentBlock } from "./util";
 import { publicClient } from "./wallet";
+import { blockTimestamp } from "./util";
 
 import { PrismaClient, Prisma } from "@prisma/client";
 import * as dotenv from "dotenv";
 import { exit } from "process";
 import { parseAbiItem, Log } from "viem";
-
 dotenv.config();
 
 const admin_port = process.env.ADMIN_PORT || "8081";
-
-type BlockTimestamp = {
-  set: (blockNumber: bigint, timestamp: number) => Promise<void>;
-  get: (blockNumber: bigint) => Promise<number | null>;
-};
-
-const blockTimestamp: BlockTimestamp = {
-  set: async (blockNumber: bigint, timestamp: number) => {
-    await save(`base:mainnet:block/${blockNumber.toString()}`, timestamp);
-  },
-  get: async (blockNumber: bigint) => {
-    return (await retrieve(`base:mainnet:block/${blockNumber.toString()}`)) as
-      | number
-      | null;
-  },
-};
 
 /**
  * @todo store the timestamp in the database to get better
@@ -40,10 +23,22 @@ const blockTimestamp: BlockTimestamp = {
  */
 const getTimestamp = async (
   blockid: bigint,
+  gapForEstimate: number = 0,
   client: PublicClient | undefined = undefined
 ) => {
-  const ts = await blockTimestamp.get(blockid);
+  let gapWithPreviousTimestamp = 0;
+  let gap = 0;
+  let ts = await blockTimestamp.get(blockid);
   if (!ts) {
+    if (gapForEstimate !== 0) {
+      for (let i = 1; i <= gapForEstimate; i++) {
+        ts = await blockTimestamp.get(blockid - BigInt(i));
+        if (ts) {
+          gapWithPreviousTimestamp = i;
+          gap = gapForEstimate;
+        }
+      }
+    }
     if (!client) {
       client = (await publicClient()) as PublicClient;
     }
@@ -51,7 +46,9 @@ const getTimestamp = async (
       undefined;
     for (let retry = 0; retry < 10; retry++) {
       try {
-        block = await client.getBlock({ blockNumber: blockid });
+        block = await client.getBlock({
+          blockNumber: blockid + BigInt(gap),
+        });
         break;
       } catch (err) {
         wait(retry * 1000);
@@ -63,10 +60,20 @@ const getTimestamp = async (
       exit(1);
     }
     try {
-      await blockTimestamp.set(block.number, Number(block.timestamp));
-      return Number(block.timestamp);
+      for (let i = 1 - gapWithPreviousTimestamp; i <= gap; i++) {
+        await blockTimestamp.set(
+          blockid + BigInt(i),
+          Number(ts) +
+            Math.round(
+              ((i + gapWithPreviousTimestamp) /
+                (gap + gapWithPreviousTimestamp)) *
+                (Number(block.timestamp) - Number(ts))
+            )
+        );
+      }
+      return await blockTimestamp.get(blockid);
     } catch (err) {
-      console.warn(`could not save the block ${block.number}`);
+      console.warn(`could not save the block ${blockid}`);
       console.warn(`exit(1)`);
       exit(1);
     }
@@ -107,12 +114,18 @@ export const saveEvent = async (prisma: PrismaClient, t: Trade) => {
   });
 };
 
-export const manageEvents = async (prisma: PrismaClient, logs: Log[]) => {
+export const manageEvents = async (
+  prisma: PrismaClient,
+  logs: Log[],
+  gapForEstimate: number = 0
+) => {
   for (const log of logs) {
     try {
       const t = {
         transactionHash: log.transactionHash,
-        timestamp: Number(await getTimestamp(log.blockNumber || 0n)),
+        timestamp: Number(
+          await getTimestamp(log.blockNumber || 0n, gapForEstimate)
+        ),
         blockNumber: Number(log.blockNumber),
         transactionIndex: log["transactionIndex"],
         traderAddress: log["args"]["trader"].toLowerCase(),
@@ -143,11 +156,13 @@ export const manageEvents = async (prisma: PrismaClient, logs: Log[]) => {
   }
 };
 
+console.log("starting adminServer");
+
+adminServer.listen(admin_port, () => {
+  console.log(`administration started on port ${admin_port}`);
+});
+
 const start = async () => {
-  console.log("starting adminServer");
-  adminServer.listen(admin_port, () => {
-    console.log(`administration started on port ${admin_port}`);
-  });
   try {
     console.log("starting idxr");
     let current = 0n;
@@ -192,7 +207,14 @@ const start = async () => {
         "target ->",
         current
       );
-      await manageEvents(prisma, logs);
+      let gapForEstimate = current - previous - gap;
+      if (gapForEstimate > 10n) {
+        gapForEstimate = 10n;
+      }
+      if (gapForEstimate <= 0n) {
+        gapForEstimate = 0n;
+      }
+      await manageEvents(prisma, logs, Number(gapForEstimate));
       previous += gap;
       if (gap < 10) {
         await wait(1000);
