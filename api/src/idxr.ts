@@ -31,7 +31,7 @@ const getTimestamp = async (
   let ts = await blockTimestamp.get(blockid);
   if (!ts) {
     if (gapForEstimate !== 0) {
-      for (let i = 1; i <= gapForEstimate; i++) {
+      for (let i = 1; i <= 2 * gapForEstimate; i++) {
         ts = await blockTimestamp.get(blockid - BigInt(i));
         if (ts) {
           gapWithPreviousTimestamp = i;
