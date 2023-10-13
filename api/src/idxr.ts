@@ -12,10 +12,58 @@ import { exit } from "process";
 
 dotenv.config();
 
+/**
+ * @todo fix the case below by:
+ * - not moving forward in case we cannot get the block with getBlock()
+ */
+//  indexing (3) between 5181910n and 5181913n target -> 5181913n
+//  error saving event BlockNotFoundError: Block at number "5181912" could not be found.
+//
+//  Version: viem@1.15.0
+//      at getBlock (/app/node_modules/viem/_cjs/actions/public/getBlock.js:25:15)
+//      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+//      at async getTimestamp (/app/build/idxr.js:45:23)
+//      at async manageEvents (/app/build/idxr.js:88:35)
+//      at async start (/app/build/idxr.js:140:13) {
+//    details: undefined,
+//    docsPath: undefined,
+//    metaMessages: undefined,
+//    shortMessage: 'Block at number "5181912" could not be found.',
+//    version: 'viem@1.15.0'
+//  }
+//  log {
+//    address: '0xcf205808ed36593aa40a44f10c7f7c2f67d4a4d4',
+//    blockHash: '0x68686c724929d3a104362e88aad1c48ac548fb83a2f3059e6bb1306ffc0d7fbe',
+//    blockNumber: 5181912n,
+//    data: '0x000000000000000000000000f97215cd9560b4cb9e81576555bc21d6f4e35e5f0000000000000000000000001b20e1d504e7b09e71e27a749cc4a1aef55ec0d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000258689ac70a8000000000000000000000000000000000000000000000000000001e053af05a2000000000000000000000000000000000000000000000000000001e053af05a200000000000000000000000000000000000000000000000000000000000000000d',
+//    logIndex: 0,
+//    removed: false,
+//    topics: [
+//      '0x2c76e7a47fd53e2854856ac3f0a5f3ee40d15cfaa82266357ea9779c486ab9c3'
+//    ],
+//    transactionHash: '0x3a057f21795090d97f040fcd03b46d4be031fda5826704a5e668a5299450a5ef',
+//    transactionIndex: 1,
+//    args: {
+//      trader: '0xf97215cD9560b4cb9e81576555BC21D6F4e35e5f',
+//      subject: '0x1b20e1D504e7b09E71e27A749cC4A1aEF55ec0d4',
+//      isBuy: false,
+//      shareAmount: 1n,
+//      ethAmount: 10562500000000000n,
+//      protocolEthAmount: 528125000000000n,
+//      subjectEthAmount: 528125000000000n,
+//      supply: 13n
+//    },
+//    eventName: 'Trade'
+//  }
+
 const admin_port = process.env.ADMIN_PORT || "8081";
 
 const blockTimestamp = new Map<bigint, Number>();
 
+/**
+ * @todo store the timestamp in the database to get better
+ * perf and reliability...
+ */
 const getTimestamp = async (
   blockid: bigint,
   client: PublicClient | undefined = undefined
@@ -32,6 +80,10 @@ const getTimestamp = async (
   return ts;
 };
 
+/**
+ * @todo store the timestamp in the database to get better
+ * perf and reliability...
+ */
 export const currentBlock = async (
   client: PublicClient | undefined = undefined
 ) => {
@@ -42,8 +94,6 @@ export const currentBlock = async (
   blockTimestamp.set(block.number, Number(block.timestamp));
   return block.number;
 };
-
-let lastCollectedBlock = -1;
 
 export const previousTrades = async (
   blockGap: bigint,

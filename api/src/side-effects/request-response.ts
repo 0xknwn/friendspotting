@@ -28,7 +28,7 @@ queueEvents.on(
   }
 );
 
-export const refreshIndex = async (name: string) => {
-  const result = await queue.add("idx/refresh", { idx: name });
+export const refreshIndex = async (idx: string) => {
+  const result = await queue.add("idx/refresh", { idx });
   console.log(`idx/refresh requested as jobid: ${result.id}`);
 };
