@@ -25,10 +25,12 @@ type BlockTimestamp = {
 
 const blockTimestamp: BlockTimestamp = {
   set: async (blockNumber: bigint, timestamp: number) => {
-    await save(blockNumber.toString(), timestamp);
+    await save(`base:mainnet:block/${blockNumber.toString()}`, timestamp);
   },
   get: async (blockNumber: bigint) => {
-    return (await retrieve(blockNumber.toString())) as number | null;
+    return (await retrieve(`base:mainnet:block/${blockNumber.toString()}`)) as
+      | number
+      | null;
   },
 };
 
