@@ -18,13 +18,13 @@ const queueEvents = new QueueEvents("request-response", {
 });
 
 queueEvents.on("completed", ({ jobId }) => {
-  console.log("done painting, jobid:", jobId);
+  console.log("done processing, jobid:", jobId);
 });
 
 queueEvents.on(
   "failed",
   ({ jobId, failedReason }: { jobId: string; failedReason: string }) => {
-    console.error("error painting, jobid:", jobId, "reason:", failedReason);
+    console.error("error processing, jobid:", jobId, "reason:", failedReason);
   }
 );
 

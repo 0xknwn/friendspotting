@@ -112,7 +112,7 @@ export const idxHistory = (prisma: PrismaClient) => {
     } catch (err) {
       console.error(`could not retrieve key idx/${idx}`);
     }
-    res.sendStatus(404).json({ status: "NotFound" });
+    res.sendStatus(404);
   };
 };
 

@@ -18,15 +18,18 @@ const prisma = connect(process.env.DATABASE_URL);
 const refreshIndexTracker: { [idx: string]: number } = {};
 
 const refreshIndexJob = async (prisma: PrismaClient, idx: string) => {
-  if (
-    refreshIndexTracker[idx] &&
-    new Date().getTime() - refreshIndexTracker[idx] > 1000
-  ) {
-    refreshIndexTracker[idx] = new Date().getTime();
-    const data = await idxQueryHistory(prisma, idx);
-    save(`idx/${idx}`, data);
-    console.log(`idx ${idx} cache refreshed`);
+  const now = new Date().getTime();
+  if (refreshIndexTracker[idx] && now - refreshIndexTracker[idx] < 3000) {
+    console.log(
+      `cache for ${idx} cache up-to-date ${
+        new Date().getTime() - refreshIndexTracker[idx]
+      } ms`
+    );
   }
+  refreshIndexTracker[idx] = now;
+  const data = await idxQueryHistory(prisma, idx);
+  save(`idx/${idx}`, data);
+  console.log(`idx ${idx} cache refreshed`);
 };
 
 const start = async (prisma: PrismaClient) => {
@@ -34,6 +37,7 @@ const start = async (prisma: PrismaClient) => {
     "request-response",
     async (job) => {
       if (job.name === "idx/refresh") {
+        console.log(`receiving idx/refresh request`);
         if (!job.data.idx) {
           console.log(`error index not requested, skip...`);
           return;
