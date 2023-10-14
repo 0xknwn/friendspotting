@@ -83,3 +83,27 @@ model User {
   createdAt                        DateTime @default(now())
   updatedAt                        DateTime
 }
+
+model Log {
+  transactionHash                 String
+  chain                           String
+  blockNumber                     Int
+  transactionIndex                Int
+  eventIndex                      Int
+  eventName                       String
+  args                            Json?
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime
+
+  @@id([transactionHash, eventIndex])
+  @@unique([chain, blockNumber, transactionIndex, eventIndex])
+  @@unique([chain, eventName, blockNumber, transactionIndex, eventIndex])
+}
+
+model Block {
+  chain                           String
+  blockNumber                     Int
+  timestamp                       Int
+
+  @@id([chain, blockNumber])
+}

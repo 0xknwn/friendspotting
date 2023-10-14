@@ -1,4 +1,4 @@
-import { lastBlock, wait } from "./util";
+import { lastBlockFromCache } from "./block";
 import { publicClient } from "./wallet";
 import { base } from "viem/chains";
 
@@ -15,7 +15,7 @@ export const _previousEvents = async (
   const now = new Date().getTime();
   while (!toBlock && new Date().getTime() - now < timeout) {
     try {
-      toBlock = await lastBlock(client);
+      toBlock = await lastBlockFromCache(client);
     } catch (err) {
       console.warn(`could not get current block, err:`, err);
       console.warn(`exit(1)`);

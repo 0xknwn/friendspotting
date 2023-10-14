@@ -28,6 +28,16 @@ export const save = async (key: string, value: any) => {
   }
 };
 
+export const saveWithTTL = async (key: string, value: any, seconds: number = 3600) => {
+  if (!redis) {
+    throw `redis setup has failed, the redis content is falsy`;
+  }
+  const output = await redis.setEx(key, seconds, JSON.stringify(value));
+  if (output !== "OK") {
+    throw "could not cache the key";
+  }
+};
+
 export const retrieve = async (key: string) => {
   if (!redis) {
     throw `redis setup has failed, the redis content is falsy`;

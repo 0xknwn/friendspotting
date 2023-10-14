@@ -1,6 +1,7 @@
 import { adminServer } from "./admin";
 import { connect } from "./storage";
-import { lastBlockWithTimeout, wait } from "./util";
+import { wait } from "./util";
+import { lastBlockFromCache } from "./block";
 import { publicClient } from "./wallet";
 import { friendtech } from "./friendtech";
 import { frenbond } from "./frenbond";
@@ -11,7 +12,6 @@ import { PrismaClient } from "@prisma/client";
 import { Log, PublicClient } from "viem";
 import type { GetLogsReturnType } from "viem";
 import type { Chain } from "viem/chains";
-import { scanTimestamps } from "./timestamp";
 import { Command } from "commander";
 import * as dotenv from "dotenv";
 import { exit } from "process";
@@ -45,7 +45,6 @@ const eventManager: { [k: string]: EventManager } = {
 program
   .version("dev")
   .description("A CLI to start the indexer with options")
-  .option("-t, --timestamp", "Cache blockNumber/timestamps mapping in redis")
   .option("-c, --chain  <goerli|base>", "Defines the chain, default base")
   .option(
     "-i, --interface [<friendtech|frenbond|sync>]",
@@ -67,9 +66,6 @@ const start = async () => {
     chain = baseGoerli;
   }
   const client = await publicClient(chain);
-  if (options.t || options.timestamp) {
-    scanTimestamps(client);
-  }
   const indexer: string = options.i ? options.i : options.interface;
   let manager: EventManager = eventManager.friendtech;
   switch (indexer) {
@@ -86,7 +82,7 @@ const start = async () => {
     console.log("starting idxr");
     let current = 0n;
     try {
-      current = await lastBlockWithTimeout(client);
+      current = await lastBlockFromCache(client);
     } catch (err) {
       console.warn(`could not get current block, err:`, err);
       console.warn(`force exit(1)`);
@@ -103,7 +99,7 @@ const start = async () => {
     while (true) {
       let current = 0n;
       try {
-        current = await lastBlockWithTimeout(client);
+        current = await lastBlockFromCache(client);
       } catch (err) {
         console.warn(`could not get current block, err:`, err);
         console.warn(`exit(1)`);

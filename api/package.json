@@ -13,6 +13,7 @@
     "start:api": "node build/api.js",
     "start:aggr": "node build/aggr.js",
     "start:idxr": "node build/idxr.js",
+    "start:block": "node build/block-idxr.js",
     "start:sscr": "node build/sscr.js",
     "start:dev": "nodemon",
     "test:unit": "vitest -c ./vitest.config.unit.js --silent=false",

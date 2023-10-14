@@ -1,6 +1,5 @@
 import type { Trade } from "@prisma/client";
 import { checkUser } from "./twitter";
-import { blockTimestamp } from "./timestamp";
 import { PrismaClient, Prisma } from "@prisma/client";
 import * as dotenv from "dotenv";
 import { exit } from "process";
@@ -40,9 +39,7 @@ const manageEvents = async (
     try {
       const t = {
         transactionHash: log.transactionHash,
-        timestamp: Number(
-          await blockTimestamp.get(client.chain, log.blockNumber)
-        ),
+        timestamp: 0,
         blockNumber: Number(log.blockNumber),
         transactionIndex: log["transactionIndex"],
         traderAddress: log["args"]["trader"].toLowerCase(),

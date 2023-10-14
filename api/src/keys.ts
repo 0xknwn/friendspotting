@@ -2,7 +2,6 @@ import Express from "express";
 import { PrismaClient } from "@prisma/client";
 import { Address } from "viem";
 import { refreshIndex } from "./side-effects/request-response";
-import { idxQueryHistory } from "./side-effects/queries";
 import { retrieve } from "./side-effects/cache";
 
 export const keyHistory = (prisma: PrismaClient) => {
