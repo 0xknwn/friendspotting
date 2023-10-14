@@ -59,7 +59,7 @@ const start = async () => {
     );
     await saveWithTTL(
       `base:${prefix}:blocknumber/latest`,
-      Number(lastblock.timestamp)
+      Number(lastblock.number)
     );
     if (currentBlockNumber === 0n) {
       currentBlockNumber = lastblock.number - scanGap;
