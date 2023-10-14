@@ -1,69 +1,51 @@
-import { publicClient } from "./wallet";
-import { parseAbiItem, Log } from "viem";
-import type { PublicClient, Address } from "viem";
-import * as dotenv from "dotenv";
-import { wait } from "./util";
-import { setSharesSupply, getSharesSupply } from "./friendtech";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { Log, PublicClient } from "viem";
+import type { Address } from "viem";
+import { address, events } from "./abi/friendtech-events";
+import { _previousEvents } from "./events";
+import { setSharesSupply, getSharesSupply } from "./friendtech-mock";
 import { sourceSupply } from "./source";
-import { adminServer } from "./admin";
-import { exit } from "process";
-/**
- * @todo store the timestamp in the database to get better
- * perf and reliability...
- */
-import { currentBlock } from "./util";
 
+import * as dotenv from "dotenv";
 dotenv.config();
 
 const monitoredAddresses: Array<Address> = [];
 
 const feedAddresses = () => {
   if (!process.env.MONITORED_ADDRESSES) {
-    throw "missing variable MONITORED_ADDRESSES";
+    console.log("variable MONITORED_ADDRESSES not set...");
+    return;
   }
   process.env.MONITORED_ADDRESSES.split(",").forEach((address) => {
     if (!address || address.slice(0, 2) !== "0x") {
       throw `unknown address ${address}`;
     }
     monitoredAddresses.push(address.toLowerCase() as Address);
+    console.log("monitored addresses", monitoredAddresses);
   });
 };
 
-const previousTrades = async (
-  blockGap: bigint,
-  toBlock: bigint | undefined = undefined
-) => {
-  const client = await publicClient();
-  if (!toBlock) {
-    try {
-      toBlock = await currentBlock(client);
-    } catch (err) {
-      console.warn(`could not get current block, err:`, err);
-      console.warn(`force exit(1)`);
-      process.exit(1);
-    }
-  }
-  const logs = await client.getLogs({
-    address: "0xCF205808Ed36593aa40a44F10c7f7C2F67d4A4d4",
-    event: parseAbiItem(
-      "event Trade(address trader, address subject, bool isBuy, uint256 shareAmount, uint256 ethAmount, uint256 protocolEthAmount, uint256 subjectEthAmount, uint256 supply)"
-    ),
-    fromBlock: toBlock - blockGap,
-    toBlock: toBlock - 1n,
-  });
-  return logs;
-};
+feedAddresses();
 
-const latestSupply = (
-  logs: Log[],
-  previousSupply: Map<Address, bigint>
-): Map<Address, bigint> => {
+const latestSupply = (logs: Log[]): Map<Address, bigint> => {
+  const supply = new Map<Address, bigint>();
   for (const log of logs) {
     if (monitoredAddresses.includes(log["args"]["subject"].toLowerCase())) {
-      previousSupply.set(log["args"]["subject"], log["args"]["supply"]);
+      supply.set(log["args"]["subject"], log["args"]["supply"]);
     }
   }
-  return previousSupply;
+  return supply;
+};
+
+const manageEvents = async (
+  prisma: PrismaClient,
+  client: PublicClient,
+  logs: Log[]
+) => {
+  const supply = latestSupply(logs);
+  if (supply) {
+    await sync(supply);
+  }
 };
 
 const sync = async (supply: Map<Address, bigint>) => {
@@ -77,7 +59,7 @@ const sync = async (supply: Map<Address, bigint>) => {
   }
 };
 
-const reSync = async () => {
+const initEvents = async (prisma: PrismaClient, client: PublicClient) => {
   const supply = new Map<Address, bigint>();
   for (let key of monitoredAddresses) {
     const srcSupply = await sourceSupply(key);
@@ -91,68 +73,17 @@ const reSync = async () => {
   await sync(supply);
 };
 
-const admin_port = process.env.ADMIN_PORT || "8081";
-
-const start = async () => {
-  adminServer.listen(admin_port, () => {
-    console.log(`administration started on port ${admin_port}`);
-  });
-  try {
-    feedAddresses();
-    await reSync();
-    console.log("starting syncing...");
-    let current = 0n;
-    try {
-      current = await currentBlock();
-    } catch (err) {
-      console.warn(`could not get current block, err:`, err);
-      console.warn(`force exit(1)`);
-      process.exit(1);
-    }
-    let previous = current - 1000n;
-    let supply = new Map<Address, bigint>();
-    while (true) {
-      let current = 0n;
-      try {
-        current = await currentBlock();
-      } catch (err) {
-        console.warn(`could not get current block, err:`, err);
-        console.warn(`force exit(1)`);
-        process.exit(1);
-      }
-      let gap = 10n;
-      if (current <= previous) {
-        await wait(1000);
-        continue;
-      }
-      if (current - previous < 10n) {
-        gap = current - previous;
-      }
-      const logs = await previousTrades(gap, previous + gap);
-      console.log(
-        `indexing (${logs.length}) between`,
-        previous,
-        "and",
-        previous + gap,
-        "target ->",
-        current
-      );
-      supply = latestSupply(logs, supply);
-      previous += gap;
-      if (gap < 10) {
-        if (supply) {
-          await sync(supply);
-          supply = new Map<Address, bigint>();
-        }
-        await wait(1000);
-      }
-    }
-  } catch (err) {
-    console.log("error on job", err);
-    exit(1);
-  }
+const previousEvents = async (
+  blockGap: bigint,
+  toBlock: bigint | undefined = undefined,
+  timeout: number = 300_000
+) => {
+  return await _previousEvents(address, events, blockGap, toBlock, timeout);
 };
 
-start()
-  .then((log) => console.log(log))
-  .catch((err) => console.warn(err));
+export const syncer = {
+  initialGap: 1n,
+  manageEvents,
+  previousEvents,
+  initEvents,
+};

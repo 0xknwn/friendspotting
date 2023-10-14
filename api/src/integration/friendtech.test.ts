@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { getSharesSupply, setSharesSupply } from "../friendtech";
+import { getSharesSupply, setSharesSupply } from "../friendtech-mock";
 import { wait } from "../util";
 
 const destAddress = `0xef42b587e4a3d33f88fa499be1d80c676ff7a226`;

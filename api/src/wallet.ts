@@ -5,44 +5,24 @@ import {
   createWalletClient,
   http,
 } from "viem";
-import { base, baseGoerli } from "viem/chains";
 import { HDKey, hdKeyToAccount } from "viem/accounts";
+import type { Chain } from "viem/chains";
 
-export const walletClient = async (mnemonic: string) => {
+export const walletClient = async (chain: Chain, mnemonic: string) => {
   const hdkey = HDKey.fromMasterSeed(await mnemonicToSeed(mnemonic));
   const account = hdKeyToAccount(hdkey);
   const transport = http();
   const client = createWalletClient({
     account,
-    chain: base,
+    chain,
     transport,
   });
   return client;
 };
 
-export const goerliWalletClient = async (mnemonic: string) => {
-  const hdkey = HDKey.fromMasterSeed(await mnemonicToSeed(mnemonic));
-  const account = hdKeyToAccount(hdkey);
-  const transport = http();
-  const client = createWalletClient({
-    account,
-    chain: baseGoerli,
-    transport,
-  });
-  return client;
-};
-
-export const publicClient = async () => {
+export const publicClient = async (chain: Chain) => {
   const client = createPublicClient({
-    chain: base,
-    transport: http(),
-  }) as PublicClient;
-  return client;
-};
-
-export const goerliPublicClient = async () => {
-  const client = createPublicClient({
-    chain: baseGoerli,
+    chain,
     transport: http(),
   }) as PublicClient;
   return client;
