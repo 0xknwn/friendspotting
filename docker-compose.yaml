@@ -72,7 +72,7 @@ services:
       context: api/.
 
   block-mainnet:
-    image: idxr
+    image: block-idxr
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
       - REDIS_HOST=redis
@@ -85,7 +85,7 @@ services:
       context: api/.
 
   block-goerli:
-    image: idxr
+    image: block-idxr
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
       - REDIS_HOST=redis
