@@ -1,17 +1,16 @@
 import { lastBlockFromCache } from "./block";
-import { publicClient } from "./wallet";
-import { base } from "viem/chains";
+import { type PublicClient } from "viem";
 
 import type { Address } from "viem";
 
 export const _previousEvents = async (
   address: Address,
   events: any,
+  client: PublicClient,
   blockGap: bigint,
   toBlock: bigint | undefined = undefined,
   timeout: number = 300_000
 ) => {
-  const client = await publicClient(base);
   const now = new Date().getTime();
   while (!toBlock && new Date().getTime() - now < timeout) {
     try {

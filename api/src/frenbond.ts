@@ -6,11 +6,19 @@ import { _previousEvents } from "./events";
 dotenv.config();
 
 const previousEvents = async (
+  client: PublicClient,
   blockGap: bigint,
   toBlock: bigint | undefined = undefined,
   timeout: number = 300_000
 ) => {
-  return await _previousEvents(address, events, blockGap, toBlock, timeout);
+  return await _previousEvents(
+    address,
+    events,
+    client,
+    blockGap,
+    toBlock,
+    timeout
+  );
 };
 
 const manageEvents = async (
@@ -26,6 +34,12 @@ const manageEvents = async (
       continue;
     }
     console.log(log);
+    console.log(
+      "and also, args:",
+      JSON.stringify(log["args"], (_, v) =>
+        typeof v === "bigint" ? v.toString() : v
+      )
+    );
   }
 };
 

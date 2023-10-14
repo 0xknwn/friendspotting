@@ -30,6 +30,7 @@ type EventManager = {
     logs: Log[]
   ) => Promise<void>;
   previousEvents: (
+    client: PublicClient,
     blockGap: bigint,
     toBlock: bigint | undefined,
     timeout: number
@@ -66,6 +67,7 @@ const start = async () => {
     chain = baseGoerli;
   }
   const client = await publicClient(chain);
+  console.log(`connect with client ${JSON.stringify(client.chain)}`);
   const indexer: string = options.i ? options.i : options.interface;
   let manager: EventManager = eventManager.friendtech;
   switch (indexer) {
@@ -79,7 +81,7 @@ const start = async () => {
       manager = eventManager.friendtech;
   }
   try {
-    console.log("starting idxr");
+    console.log(`starting idxr on ${client.chain} with ${indexer}`);
     let current = 0n;
     try {
       current = await lastBlockFromCache(client);
@@ -113,7 +115,12 @@ const start = async () => {
       if (current - previous < 10n) {
         gap = current - previous;
       }
-      const logs = await manager.previousEvents(gap, previous + gap, 30000);
+      const logs = await manager.previousEvents(
+        client,
+        gap,
+        previous + gap,
+        30000
+      );
       console.log(
         `indexing (${logs.length}) between`,
         previous,

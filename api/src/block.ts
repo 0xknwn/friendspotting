@@ -62,7 +62,7 @@ export const lastBlockFromCache = async (
   timeout: number = 60_000
 ) => {
   let prefix = "mainnet";
-  if (client.chain == baseGoerli) {
+  if (client.chain === baseGoerli) {
     prefix = "goerli";
   }
   const startTime = new Date().getTime();

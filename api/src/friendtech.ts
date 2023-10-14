@@ -17,11 +17,19 @@ const saveEvent = async (prisma: PrismaClient, t: Trade) => {
 };
 
 const previousEvents = async (
+  client: PublicClient,
   blockGap: bigint,
   toBlock: bigint | undefined = undefined,
   timeout: number = 300_000
 ) => {
-  return await _previousEvents(address, events, blockGap, toBlock, timeout);
+  return await _previousEvents(
+    address,
+    events,
+    client,
+    blockGap,
+    toBlock,
+    timeout
+  );
 };
 
 const manageEvents = async (
