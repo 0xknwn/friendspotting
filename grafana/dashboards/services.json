@@ -211,7 +211,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(rate(idxr_friendtech_saved_events_total[1h]))",
+          "expr": "delta(idxr_friendtech_saved_events_total{service=\"idxr-friendtech\"}[1h])",
           "instant": false,
           "interval": "",
           "legendFormat": "\"friendtech/saved\"",
@@ -224,7 +224,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(rate(idxr_friendtech_captured_events_total[1h]))",
+          "expr": "delta(idxr_friendtech_captured_events_total{service=\"idxr-friendtech\"}[1h])",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -238,7 +238,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(rate(idxr_frenbond_saved_events_total[1h]))",
+          "expr": "delta(idxr_frenbond_saved_events_total{service=\"idxr-frenbond\"}[1h])",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -252,7 +252,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "sum(rate(idxr_frenbond_captured_events_total[1h]))",
+          "expr": "delta(idxr_frenbond_captured_events_total{service=\"idxr-frenbond\"}[1h])",
           "hide": false,
           "instant": false,
           "interval": "",

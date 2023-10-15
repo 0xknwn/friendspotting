@@ -5,9 +5,20 @@ import { address, events } from "./abi/friendtech-events";
 import { _previousEvents } from "./events";
 import { setSharesSupply, getSharesSupply } from "./friendtech-mock";
 import { sourceSupply } from "./source";
-
+import promClient from "prom-client";
 import * as dotenv from "dotenv";
+import { wait } from "./util";
 dotenv.config();
+
+const captured = new promClient.Counter({
+  name: "idxr_sync_captured_events_total",
+  help: "number of events captured by the idxr",
+});
+
+const saved = new promClient.Counter({
+  name: "idxr_sync_saved_events_total",
+  help: "number of events captured by the idxr",
+});
 
 const monitoredAddresses: Array<Address> = [];
 
@@ -50,12 +61,30 @@ const manageEvents = async (
 
 const sync = async (supply: Map<Address, bigint>) => {
   for (let [key, value] of supply) {
-    console.log("sync mock with", key, ":", value);
-    const receipt = await setSharesSupply(key, value);
-    if (receipt?.status !== "success") {
-      console.warn(receipt);
-      throw "could not sync the supply";
+    console.log("sync mock with friendtech", key, ":", value);
+    const retry = 3;
+    let finalError: any = undefined;
+    for (let i = 0; i < retry; i++) {
+      try {
+        if (i > 0) {
+          console.log(`--- attempt number ${i + 1} to sync ${key}:${value}`);
+        }
+        const receipt = await setSharesSupply(key, value);
+        if (receipt?.status !== "success") {
+          console.warn(receipt);
+          throw "could not sync the supply";
+        }
+        saved.inc(1);
+        return;
+      } catch (err) {
+        finalError = err;
+        console.log(`--- retry on error; log:`, err);
+        console.log(err);
+        await wait(10000);
+        console.log(`--- restarting now...`);
+      }
     }
+    throw finalError;
   }
 };
 
@@ -79,7 +108,7 @@ const previousEvents = async (
   toBlock: bigint | undefined = undefined,
   timeout: number = 300_000
 ) => {
-  return await _previousEvents(
+  const logs = await _previousEvents(
     address,
     events,
     client,
@@ -87,6 +116,8 @@ const previousEvents = async (
     toBlock,
     timeout
   );
+  captured.inc(logs.length);
+  return logs;
 };
 
 export const syncer = {
