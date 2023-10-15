@@ -7,14 +7,29 @@ import { Log, PublicClient } from "viem";
 import { baseGoerli } from "viem/chains";
 import { address, events } from "./abi/friendtech-events";
 import { _previousEvents } from "./events";
+import { wait } from "./util";
 dotenv.config();
 
 const saveEvent = async (prisma: PrismaClient, t: FriendTechTrade) => {
-  await prisma.friendTechTrade.upsert({
-    where: { transactionHash: t.transactionHash },
-    update: t,
-    create: t,
-  });
+  const retry = 3;
+  for (let i = 0; i < retry; i++) {
+    try {
+      await prisma.friendTechTrade.upsert({
+        where: { transactionHash: t.transactionHash },
+        update: t,
+        create: t,
+      });
+      break;
+    } catch (err) {
+      if (i === retry) {
+        throw err;
+      }
+      console.log(`--- retry on error; log:`, err);
+      console.log(err);
+      console.log(`--- restart...`);
+      wait(3000);
+    }
+  }
 };
 
 const previousEvents = async (
