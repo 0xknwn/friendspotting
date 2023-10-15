@@ -20,10 +20,14 @@ export const idxQueryHistory = async (prisma: PrismaClient, idx: string) => {
   if (!keys || keys.length === 0) {
     return;
   }
-  const history = await prisma.trade.findMany({
-    select: { timestamp: true, subjectAddress: true, supply: true },
+  const history = await prisma.friendTechTrade.findMany({
+    select: {
+      block: { select: { timestamp: true } },
+      subjectAddress: true,
+      supply: true,
+    },
     where: { subjectAddress: { in: keys } },
-    orderBy: [{ timestamp: "asc" }, { transactionIndex: "asc" }],
+    orderBy: [{ blockNumber: "asc" }, { transactionIndex: "asc" }],
   });
   const data: Array<{
     timestamp: number;
@@ -44,7 +48,7 @@ export const idxQueryHistory = async (prisma: PrismaClient, idx: string) => {
       value += price(z, 1);
     }
     data.push({
-      timestamp: history[k].timestamp,
+      timestamp: history[k].block.timestamp,
       supplies: Object.fromEntries(supplies),
       numKeys: keys.length,
       value,

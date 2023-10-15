@@ -25,7 +25,7 @@ const getBlock = async (
       const block = await client.getBlock(option);
       return block;
     } catch (err) {
-      wait(retry * 1000);
+      await wait(retry * 1000);
     }
   }
   throw `could not get block ${
@@ -70,7 +70,7 @@ export const lastBlockFromCache = async (
   while (!blockNumber && new Date().getTime() - startTime < timeout) {
     blockNumber = await retrieve(`base:${prefix}:blocknumber/latest`);
     if (!blockNumber) {
-      wait(200);
+      await wait(200);
     }
   }
   if (!blockNumber) {

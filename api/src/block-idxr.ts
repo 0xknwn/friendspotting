@@ -51,7 +51,7 @@ const start = async () => {
     }
     if (lastblock.number <= currentBlockNumber) {
       `blocks ${lastblock.number} compared to ${currentBlockNumber}, skip...`;
-      wait(500);
+      await wait(1000);
       continue;
     }
     console.log(

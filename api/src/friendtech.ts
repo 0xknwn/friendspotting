@@ -12,6 +12,7 @@ dotenv.config();
 
 const saveEvent = async (prisma: PrismaClient, t: FriendTechTrade) => {
   const retry = 3;
+  let finalError: any = undefined;
   for (let i = 0; i < retry; i++) {
     try {
       await prisma.friendTechTrade.upsert({
@@ -19,17 +20,16 @@ const saveEvent = async (prisma: PrismaClient, t: FriendTechTrade) => {
         update: t,
         create: t,
       });
-      break;
+      return;
     } catch (err) {
-      if (i === retry) {
-        throw err;
-      }
+      finalError = err;
       console.log(`--- retry on error; log:`, err);
       console.log(err);
-      console.log(`--- restart...`);
-      wait(3000);
+      await wait(10000);
+      console.log(`--- restarting now...`);
     }
   }
+  throw finalError;
 };
 
 const previousEvents = async (

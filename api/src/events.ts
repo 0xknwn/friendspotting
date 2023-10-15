@@ -43,7 +43,7 @@ export const _previousEvents = async (
       finalError = err;
       console.log(`--- retry on error; log:`, err);
       console.log(err);
-      wait(10000);
+      await wait(10000);
       console.log(`--- restarting now...`);
     }
   }
