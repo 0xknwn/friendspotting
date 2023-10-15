@@ -4,8 +4,8 @@ services:
     image: postgres:15.3-bookworm
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "127.0.0.1:5434:5432"
     volumes:
@@ -19,10 +19,9 @@ services:
   idxr:
     image: idxr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
-    command:
-      ["npm", "run", "start:idxr"]
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
+    command: ["npm", "run", "start:idxr"]
     depends_on:
       - db
       - redis
@@ -33,8 +32,8 @@ services:
   idxr-friendtech:
     image: idxr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
     command:
       ["npm", "run", "start:idxr", "--", "-c", "base", "-i", "friendtech"]
     depends_on:
@@ -47,19 +46,10 @@ services:
   idxr-frenbond:
     image: idxr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
     command:
-      [
-        "npm",
-        "run",
-        "start:idxr",
-        "--",
-        "-c",
-        "goerli",
-        "-i",
-        "frenbond",
-      ]
+      ["npm", "run", "start:idxr", "--", "-c", "goerli", "-i", "frenbond"]
     depends_on:
       - db
       - redis
@@ -70,10 +60,10 @@ services:
   sync:
     image: idxr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
-      - MNEMONIC_FILE=/run/secrets/mnemonic.txt
-      - MONITORED_ADDRESSES="0x1b546a13875c83db8bab7ea4df760b13019a976c,0x1f5b68b914f7ad1afca4528b357827def2500f38,0x3ee9eda7d7ae365b47be8bfe67e07e27522aaf6a,0x5479f127a4d594208549c86f4b4903a1175a0311,0x9c1c9027f2e9194f00f8f732de9f36fdc1e225d6,0xa84bd0e9646170b91c75a999332954a15e4969b3,0xa8ba11db2901905c6ab49c1c86e69fd22081f68a,0xd85eff2d610132d507ece73e1f37df82774a8d47,0xef42b587e4a3d33f88fa499be1d80c676ff7a226,0xf0a5a3b09a919c7fe826ea0d9482e8d377952821,0xf9b7cf4be6f4cde37dd1a5b75187d431d94a4fcc"
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
+      MNEMONIC_FILE: /run/secrets/mnemonic.txt
+      MONITORED_ADDRESSES: 0x1b546a13875c83db8bab7ea4df760b13019a976c,0x1f5b68b914f7ad1afca4528b357827def2500f38,0x3ee9eda7d7ae365b47be8bfe67e07e27522aaf6a,0x5479f127a4d594208549c86f4b4903a1175a0311,0x9c1c9027f2e9194f00f8f732de9f36fdc1e225d6,0xa84bd0e9646170b91c75a999332954a15e4969b3,0xa8ba11db2901905c6ab49c1c86e69fd22081f68a,0xd85eff2d610132d507ece73e1f37df82774a8d47,0xef42b587e4a3d33f88fa499be1d80c676ff7a226,0xf0a5a3b09a919c7fe826ea0d9482e8d377952821,0xf9b7cf4be6f4cde37dd1a5b75187d431d94a4fcc
     command: ["npm", "run", "start:idxr", "--", "-c", "base", "-i", "sync"]
     depends_on:
       - db
@@ -87,8 +77,8 @@ services:
   block-mainnet:
     image: block-idxr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
     command: ["npm", "run", "start:block", "--", "-c", "base"]
     depends_on:
       - db
@@ -100,8 +90,8 @@ services:
   block-goerli:
     image: block-idxr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
     command: ["npm", "run", "start:block", "--", "-c", "goerli"]
     depends_on:
       - db
@@ -113,7 +103,7 @@ services:
   aggr:
     image: aggr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
     command: ["npm", "run", "start:aggr"]
     depends_on:
       - db
@@ -124,8 +114,8 @@ services:
   api:
     image: api
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
     ports:
       - "8084:8080"
     command: ["npm", "run", "start:api"]
@@ -172,8 +162,8 @@ services:
   sscr:
     image: sscr
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      - REDIS_HOST=redis
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      REDIS_HOST: redis
     command: ["npm", "run", "start:sscr"]
     depends_on:
       - db

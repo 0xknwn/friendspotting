@@ -71,7 +71,7 @@ const start = async () => {
     chain = baseGoerli;
   }
   const client = await publicClient(chain);
-  console.log(`connect with client ${JSON.stringify(client.chain)}`);
+  console.log(`connect with client ${client?.chain?.rpcUrls?.default?.http}`);
   const indexer: string = options.i ? options.i : options.interface;
   let manager: EventManager = eventManager.friendtech;
   switch (indexer) {
@@ -81,8 +81,11 @@ const start = async () => {
     case "sync":
       manager = eventManager.syncer;
       break;
+    case "friendtech":
+      manager = eventManager.frenbond;
+      break;
     default:
-      manager = eventManager.friendtech;
+      throw `unknown event manager value for ${indexer}`;
   }
   try {
     console.log(`starting idxr on ${client.chain} with ${indexer}`);
@@ -101,6 +104,8 @@ const start = async () => {
     }
     console.log("connecting to database");
     const prisma = connect(process.env.DATABASE_URL);
+    console.log("initialization process...");
+    await manager.initEvents(prisma, client);
     console.log("starting block is", previous);
     while (true) {
       let current = 0n;

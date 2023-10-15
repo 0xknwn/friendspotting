@@ -32,8 +32,8 @@ const feedAddresses = () => {
       throw `unknown address ${address}`;
     }
     monitoredAddresses.push(address.toLowerCase() as Address);
-    console.log("monitored addresses", monitoredAddresses);
   });
+  console.log("monitored addresses", monitoredAddresses);
 };
 
 feedAddresses();
@@ -94,7 +94,7 @@ const initEvents = async (prisma: PrismaClient, client: PublicClient) => {
     const srcSupply = await sourceSupply(key);
     const dstSupply = await getSharesSupply(key);
     if (srcSupply === dstSupply) {
-      console.log("mock already synced to", srcSupply);
+      console.log(`mock already synced to ${key}:${srcSupply}`);
       continue;
     }
     supply.set(key, srcSupply);
