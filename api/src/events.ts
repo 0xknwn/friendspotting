@@ -29,6 +29,7 @@ export const _previousEvents = async (
   }
 
   const retry = 3;
+  let finalError: any = undefined;
   for (let i = 0; i < retry; i++) {
     try {
       const logs = await client.getLogs({
@@ -39,14 +40,12 @@ export const _previousEvents = async (
       });
       return logs;
     } catch (err) {
-      if (i === retry) {
-        throw err;
-      }
+      finalError = err;
       console.log(`--- retry on error; log:`, err);
       console.log(err);
       wait(10000);
       console.log(`--- restarting now...`);
     }
   }
-  throw "should not reach this point";
+  throw finalError;
 };
