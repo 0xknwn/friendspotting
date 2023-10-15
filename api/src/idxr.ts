@@ -21,20 +21,24 @@ const admin_port = process.env.ADMIN_PORT || "8081";
 
 const program = new Command();
 
+type ManageEvents = (
+  prisma: PrismaClient,
+  client: PublicClient,
+  logs: Log[]
+) => Promise<void>;
+
+type PreviousEvents = (
+  client: PublicClient,
+  blockGap: bigint,
+  toBlock: bigint | undefined,
+  timeout: number
+) => Promise<GetLogsReturnType>;
+
 type EventManager = {
   initialGap: bigint;
   initEvents: (prisma: PrismaClient, client: PublicClient) => Promise<void>;
-  manageEvents: (
-    prisma: PrismaClient,
-    client: PublicClient,
-    logs: Log[]
-  ) => Promise<void>;
-  previousEvents: (
-    client: PublicClient,
-    blockGap: bigint,
-    toBlock: bigint | undefined,
-    timeout: number
-  ) => Promise<GetLogsReturnType>;
+  manageEvents: ManageEvents[];
+  previousEvents: PreviousEvents[];
 };
 
 const eventManager: { [k: string]: EventManager } = {
@@ -115,21 +119,25 @@ const start = async () => {
       if (current - previous < 10n) {
         gap = current - previous;
       }
-      const logs = await manager.previousEvents(
-        client,
-        gap,
-        previous + gap,
-        30000
-      );
-      console.log(
-        `indexing (${logs.length}) between`,
-        previous,
-        "and",
-        previous + gap,
-        "target ->",
-        current
-      );
-      await manager.manageEvents(prisma, client, logs);
+      for (let i = 0; i < manager.previousEvents.length; i++) {
+        const logs = await manager.previousEvents[i](
+          client,
+          gap,
+          previous + gap,
+          30000
+        );
+        console.log(
+          `indexing (${logs.length}) event (${i + 1}/${
+            manager.previousEvents.length
+          }) between`,
+          previous,
+          "and",
+          previous + gap,
+          "target ->",
+          current
+        );
+        await manager.manageEvents[i](prisma, client, logs);
+      }
       previous += gap;
       if (gap < 10) {
         await wait(1000);

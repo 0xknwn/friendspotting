@@ -91,7 +91,7 @@ const previousEvents = async (
 
 export const syncer = {
   initialGap: 1n,
-  manageEvents,
-  previousEvents,
+  manageEvents: [manageEvents],
+  previousEvents: [previousEvents],
   initEvents,
 };

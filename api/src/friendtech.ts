@@ -80,7 +80,7 @@ const manageEvents = async (
 
 export const friendtech = {
   initialGap: 1000n,
-  manageEvents,
-  previousEvents,
+  manageEvents: [manageEvents],
+  previousEvents: [previousEvents],
   initEvents: async (prisma: PrismaClient, client: PublicClient) => {},
 };
