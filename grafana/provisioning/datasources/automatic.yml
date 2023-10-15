@@ -14,3 +14,18 @@ datasources:
       cacheLevel: 'High'
       disableRecordingRules: false
       incrementalQueryOverlapWindow: 10m
+  - name: postgres
+    type: postgres
+    url: db:5432
+    user: postgres
+    secureJsonData:
+      password: 'postgres'
+    jsonData:
+      database: postgres
+      sslmode: 'disable'
+      maxOpenConns: 50
+      maxIdleConns: 50
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+      timescaledb: false
