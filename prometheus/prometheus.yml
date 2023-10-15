@@ -16,6 +16,20 @@ scrape_configs:
     relabel_configs:
       - target_label: service
         replacement: idxr
+  - job_name: idxr-friendtech
+    static_configs:
+      - targets:
+          - idxr-friendtech:8081
+    relabel_configs:
+      - target_label: service
+        replacement: idxr-friendtech
+  - job_name: idxr-frenbond
+    static_configs:
+      - targets:
+          - idxr-frenbond:8081
+    relabel_configs:
+      - target_label: service
+        replacement: idxr-frenbond
   - job_name: sync
     static_configs:
       - targets:
