@@ -8,7 +8,7 @@ export const querySubjectTradersOverTime = async (
   endTimestamp: number
 ): Promise<
   Array<{
-    timestamp: number;
+    block: { timestamp: number };
     traderAddress: string;
     subjectAddress: string;
     isBuy: boolean;
@@ -16,27 +16,31 @@ export const querySubjectTradersOverTime = async (
     supply: number;
   }>
 > => {
-  return await prisma.trade.findMany({
+  return await prisma.friendTechTrade.findMany({
     select: {
       isBuy: true,
       shareAmount: true,
       subjectAddress: true,
       supply: true,
-      timestamp: true,
+      block: {
+        select: { timestamp: true },
+      },
       traderAddress: true,
     },
     where: {
       subjectAddress: {
         startsWith: part,
       },
-      timestamp: {
-        gte: startTimestamp,
-        lt: endTimestamp,
+      block: {
+        timestamp: {
+          gte: startTimestamp,
+          lt: endTimestamp,
+        },
       },
     },
     orderBy: [
       { subjectAddress: "asc" },
-      { timestamp: "desc" },
+      { blockNumber: "desc" },
       { transactionIndex: "desc" },
     ],
   });

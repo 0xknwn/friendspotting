@@ -63,9 +63,10 @@ const _mapSubjectTradersOverTime = async (
     shareAmount,
     subjectAddress,
     supply,
-    timestamp,
+    block,
     traderAddress,
   } of result) {
+    const { timestamp } = block;
     let subject = map.get(subjectAddress as Address);
     if (!subject) {
       currentSubjectAddress = subjectAddress as Address;

@@ -11,10 +11,10 @@ export const keyHistory = (prisma: PrismaClient) => {
       res.sendStatus(404).json({ status: "NotFound" });
       return;
     }
-    const history = await prisma.trade.findMany({
-      select: { timestamp: true, supply: true },
+    const history = await prisma.friendTechTrade.findMany({
+      select: { block: { select: { timestamp: true } }, supply: true },
       where: { subjectAddress: key },
-      orderBy: [{ timestamp: "asc" }, { transactionIndex: "asc" }],
+      orderBy: [{ blockNumber: "asc" }, { transactionIndex: "asc" }],
     });
     res.json(history);
   };
@@ -27,10 +27,14 @@ const _traderHistory = async (
 ) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const timestamp = now - (now % 86400) - days * 86400;
-  const history = await prisma.trade.findMany({
+  // ,
+
+  const history = await prisma.friendTechTrade.findMany({
     select: {
       subjectAddress: true,
-      timestamp: true,
+      block: {
+        select: { timestamp: true },
+      },
       ethAmount: true,
       shareAmount: true,
       isBuy: true,
@@ -38,12 +42,18 @@ const _traderHistory = async (
     },
     where: {
       traderAddress: trader,
-      timestamp: {
-        gte: timestamp,
-        lt: timestamp + 86400,
+      block: {
+        timestamp: {
+          gte: timestamp,
+          lt: timestamp + 86400,
+        },
       },
     },
-    orderBy: [{ subjectAddress: "asc" }, { timestamp: "asc" }],
+    orderBy: [
+      { subjectAddress: "asc" },
+      { blockNumber: "asc" },
+      { transactionIndex: "asc" },
+    ],
   });
   const result = {} as {
     [k: Address]: {
@@ -55,7 +65,8 @@ const _traderHistory = async (
     }[];
   };
   history.forEach(
-    ({ subjectAddress, timestamp, ethAmount, shareAmount, isBuy, supply }) => {
+    ({ subjectAddress, block, ethAmount, shareAmount, isBuy, supply }) => {
+      const { timestamp } = block;
       const key = {
         timestamp,
         ethAmount: Number(BigInt(ethAmount.toString()) / 10n ** 12n) / 10 ** 6,
