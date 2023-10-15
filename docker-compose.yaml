@@ -44,7 +44,7 @@ services:
     build:
       context: api/.
 
-  idxr-frendbond:
+  idxr-frenbond:
     image: idxr
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
@@ -58,7 +58,7 @@ services:
         "-c",
         "goerli",
         "-i",
-        "frendbond",
+        "frenbond",
       ]
     depends_on:
       - db
