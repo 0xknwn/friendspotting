@@ -325,9 +325,9 @@
         "x": 0,
         "y": 10
       },
-      "id": 10,
+      "id": 8,
       "panels": [],
-      "title": "Frenbond",
+      "title": "FriendTech on Fire",
       "type": "row"
     },
     {
@@ -372,7 +372,6 @@
             }
           },
           "mappings": [],
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -391,11 +390,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 11
       },
-      "id": 11,
+      "id": 6,
       "options": {
         "legend": {
           "calcs": [],
@@ -418,153 +417,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xf0a5\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n    '0xf0a5a3b09a919c7fe826ea0d9482e8d377952821')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+          "rawSql": "select to_timestamp(b.timestamp) time, \n    supply as frenbond\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere \"subjectAddress\" in (\n    '0xd85eff2d610132d507ece73e1f37df82774a8d47')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
           "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xa8ba\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0xa8ba11db2901905c6ab49c1c86e69fd22081f68a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "B",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1b54\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1b546a13875c83db8bab7ea4df760b13019a976c')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "C",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x9c1c\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x9c1c9027f2e9194f00f8f732de9f36fdc1e225d6')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "D",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x3ee9\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x3ee9eda7d7ae365b47be8bfe67e07e27522aaf6a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "E",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1f5b\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1f5b68b914f7ad1afca4528b357827def2500f38')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "F",
           "sql": {
             "columns": [
               {
@@ -584,264 +438,7 @@
           }
         }
       ],
-      "title": "CBB Cartel (Old)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PA942B37CCFAF5A81"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 11
-      },
-      "id": 3,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.1.5",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xf0a5\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n    '0xf0a5a3b09a919c7fe826ea0d9482e8d377952821')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xa8ba\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0xa8ba11db2901905c6ab49c1c86e69fd22081f68a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "B",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1b54\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1b546a13875c83db8bab7ea4df760b13019a976c')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "C",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x9c1c\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x9c1c9027f2e9194f00f8f732de9f36fdc1e225d6')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "D",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x3ee9\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x3ee9eda7d7ae365b47be8bfe67e07e27522aaf6a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "E",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PA942B37CCFAF5A81"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1f5b\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1f5b68b914f7ad1afca4528b357827def2500f38')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
-          "refId": "F",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "CBB Cartel (New)",
+      "title": "FrenBond Room On FriendTech",
       "type": "timeseries"
     },
     {
@@ -861,7 +458,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "bars",
-            "fillOpacity": 25,
+            "fillOpacity": 77,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -901,40 +498,15 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "value NewPayouts"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "NewPayouts"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "value BondsBought"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "BondsBought"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 19
+        "w": 16,
+        "x": 8,
+        "y": 11
       },
-      "id": 5,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -957,8 +529,95 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp) ) time, \n    f.\"eventName\", \n    count(*) value\nfrom \"Log\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"eventName\" in ('NewPayouts', 'BondsBought')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1, 2\n  -- AND $__timeFilter(to_timestamp(b.timestamp))\n",
+          "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"new\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" between 0 and 1\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
           "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PA942B37CCFAF5A81"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"small\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" between 2 and 5\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PA942B37CCFAF5A81"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"mid\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" between 6 and 50\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
+          "refId": "C",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PA942B37CCFAF5A81"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"large\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" > 50\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
+          "refId": "D",
           "sql": {
             "columns": [
               {
@@ -978,7 +637,7 @@
           }
         }
       ],
-      "title": "FrenBond",
+      "title": "Tx per Account on FriendTech",
       "type": "timeseries"
     },
     {
@@ -987,9 +646,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 19
       },
-      "id": 8,
+      "id": 10,
       "panels": [
         {
           "datasource": {
@@ -1033,6 +692,7 @@
                 }
               },
               "mappings": [],
+              "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -1051,11 +711,11 @@
           },
           "gridPos": {
             "h": 8,
-            "w": 8,
+            "w": 12,
             "x": 0,
-            "y": 28
+            "y": 11
           },
-          "id": 6,
+          "id": 11,
           "options": {
             "legend": {
               "calcs": [],
@@ -1078,8 +738,153 @@
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "select to_timestamp(b.timestamp) time, \n    supply as frenbond\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere \"subjectAddress\" in (\n    '0xd85eff2d610132d507ece73e1f37df82774a8d47')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xf0a5\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n    '0xf0a5a3b09a919c7fe826ea0d9482e8d377952821')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
               "refId": "A",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xa8ba\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0xa8ba11db2901905c6ab49c1c86e69fd22081f68a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "B",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1b54\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1b546a13875c83db8bab7ea4df760b13019a976c')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "C",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x9c1c\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x9c1c9027f2e9194f00f8f732de9f36fdc1e225d6')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "D",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x3ee9\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x3ee9eda7d7ae365b47be8bfe67e07e27522aaf6a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "E",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1f5b\"\nfrom \"Trade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1f5b68b914f7ad1afca4528b357827def2500f38')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "F",
               "sql": {
                 "columns": [
                   {
@@ -1099,7 +904,264 @@
               }
             }
           ],
-          "title": "FrenBond Room On FriendTech",
+          "title": "CBB Cartel (Old)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PA942B37CCFAF5A81"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 11
+          },
+          "id": 3,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "10.1.5",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xf0a5\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n    '0xf0a5a3b09a919c7fe826ea0d9482e8d377952821')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "A",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0xa8ba\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0xa8ba11db2901905c6ab49c1c86e69fd22081f68a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "B",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1b54\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1b546a13875c83db8bab7ea4df760b13019a976c')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "C",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x9c1c\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x9c1c9027f2e9194f00f8f732de9f36fdc1e225d6')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "D",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x3ee9\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x3ee9eda7d7ae365b47be8bfe67e07e27522aaf6a')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "E",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PA942B37CCFAF5A81"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "hide": false,
+              "rawQuery": true,
+              "rawSql": "select to_timestamp(b.timestamp) time, \n    f.supply as \"0x1f5b\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"subjectAddress\" in (\n  '0x1f5b68b914f7ad1afca4528b357827def2500f38')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\n",
+              "refId": "F",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
+            }
+          ],
+          "title": "CBB Cartel (New)",
           "type": "timeseries"
         },
         {
@@ -1119,7 +1181,7 @@
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "drawStyle": "bars",
-                "fillOpacity": 77,
+                "fillOpacity": 25,
                 "gradientMode": "none",
                 "hideFrom": {
                   "legend": false,
@@ -1159,15 +1221,40 @@
                 ]
               }
             },
-            "overrides": []
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "value NewPayouts"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "NewPayouts"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "value BondsBought"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "BondsBought"
+                  }
+                ]
+              }
+            ]
           },
           "gridPos": {
             "h": 8,
-            "w": 16,
-            "x": 8,
-            "y": 28
+            "w": 24,
+            "x": 0,
+            "y": 19
           },
-          "id": 4,
+          "id": 5,
           "options": {
             "legend": {
               "calcs": [],
@@ -1190,95 +1277,8 @@
               "editorMode": "code",
               "format": "time_series",
               "rawQuery": true,
-              "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"new\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" between 0 and 1\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
+              "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp) ) time, \n    f.\"eventName\", \n    count(*) value\nfrom \"Log\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"eventName\" in ('NewPayouts', 'BondsBought')\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1, 2\n  -- AND $__timeFilter(to_timestamp(b.timestamp))\n",
               "refId": "A",
-              "sql": {
-                "columns": [
-                  {
-                    "parameters": [],
-                    "type": "function"
-                  }
-                ],
-                "groupBy": [
-                  {
-                    "property": {
-                      "type": "string"
-                    },
-                    "type": "groupBy"
-                  }
-                ],
-                "limit": 50
-              }
-            },
-            {
-              "datasource": {
-                "type": "postgres",
-                "uid": "PA942B37CCFAF5A81"
-              },
-              "editorMode": "code",
-              "format": "time_series",
-              "hide": false,
-              "rawQuery": true,
-              "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"small\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" between 2 and 5\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
-              "refId": "B",
-              "sql": {
-                "columns": [
-                  {
-                    "parameters": [],
-                    "type": "function"
-                  }
-                ],
-                "groupBy": [
-                  {
-                    "property": {
-                      "type": "string"
-                    },
-                    "type": "groupBy"
-                  }
-                ],
-                "limit": 50
-              }
-            },
-            {
-              "datasource": {
-                "type": "postgres",
-                "uid": "PA942B37CCFAF5A81"
-              },
-              "editorMode": "code",
-              "format": "time_series",
-              "hide": false,
-              "rawQuery": true,
-              "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"mid\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" between 6 and 50\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
-              "refId": "C",
-              "sql": {
-                "columns": [
-                  {
-                    "parameters": [],
-                    "type": "function"
-                  }
-                ],
-                "groupBy": [
-                  {
-                    "property": {
-                      "type": "string"
-                    },
-                    "type": "groupBy"
-                  }
-                ],
-                "limit": 50
-              }
-            },
-            {
-              "datasource": {
-                "type": "postgres",
-                "uid": "PA942B37CCFAF5A81"
-              },
-              "editorMode": "code",
-              "format": "time_series",
-              "hide": false,
-              "rawQuery": true,
-              "rawSql": "select date_trunc('hours', to_timestamp(b.timestamp)) time, \n    count(*) \"large\"\nfrom \"FriendTechTrade\" f inner join \"Block\" b on b.\"blockNumber\" = f.\"blockNumber\"\nwhere f.\"supply\" > 50\n  and to_timestamp(b.timestamp)::date BETWEEN '${__from:date:iso}' AND '${__to:date:iso}'\ngroup by 1",
-              "refId": "D",
               "sql": {
                 "columns": [
                   {
@@ -1298,11 +1298,11 @@
               }
             }
           ],
-          "title": "Tx per Account on FriendTech",
+          "title": "FrenBond",
           "type": "timeseries"
         }
       ],
-      "title": "FriendTech on Fire",
+      "title": "Frenbond",
       "type": "row"
     }
   ],
