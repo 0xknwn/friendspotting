@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import * as dotenv from "dotenv";
-import { Log, PublicClient } from "viem";
+import { Log, PublicClient, Address } from "viem";
 import { address, events } from "./abi/frenbond-events";
 import { _previousEvents } from "./events";
 import promClient from "prom-client";
+import { baseGoerli } from "viem/chains";
 dotenv.config();
 
 const captured = new promClient.Counter({
@@ -12,9 +13,16 @@ const captured = new promClient.Counter({
 });
 
 captured.inc(0);
+
 const saved = new promClient.Counter({
   name: "idxr_frenbond_saved_events_total",
-  help: "number of events captured by the idxr",
+  help: "number of events saved by the idxr",
+});
+saved.inc(0);
+
+const errors = new promClient.Counter({
+  name: "idxr_frenbond_errored_events_total",
+  help: "number of events errored by the idxr",
 });
 saved.inc(0);
 
@@ -45,6 +53,8 @@ const genManageEvents = (events: any) => {
   return events.map(
     (event) =>
       async (prisma: PrismaClient, client: PublicClient, logs: Log[]) => {
+        let prefix = "mainnet";
+        if (client && client.chain === baseGoerli) prefix = "goerli";
         for (const log of logs) {
           if (!log.blockNumber) {
             console.log(
@@ -52,12 +62,55 @@ const genManageEvents = (events: any) => {
             );
             continue;
           }
-          console.log(log);
+          if (
+            !log.transactionHash ||
+            !log.blockNumber ||
+            !log.transactionIndex ||
+            !log.logIndex ||
+            !log["eventName"] ||
+            !log["args"]
+          ) {
+            console.log(log);
+            errors.inc(1);
+            throw "missing data for log";
+          }
+          prisma.log.upsert({
+            where: {
+              chain_eventName_blockNumber_transactionIndex_eventIndex: {
+                chain: prefix,
+                eventName: log.transactionHash,
+                blockNumber: Number(log.blockNumber),
+                transactionIndex: log.transactionIndex,
+                eventIndex: log.logIndex,
+              },
+            },
+            create: {
+              transactionHash: log.transactionHash as Address,
+              chain: prefix,
+              eventName: log["eventName"],
+              blockNumber: Number(log.blockNumber),
+              transactionIndex: log.transactionIndex,
+              eventIndex: log.logIndex,
+              args: JSON.parse(
+                JSON.stringify(log["args"], (_, v) =>
+                  typeof v === "bigint" ? v.toString() : v
+                )
+              ),
+              updatedAt: new Date(),
+            },
+            update: {
+              eventIndex: log.logIndex,
+              eventName: log["eventName"],
+              args: JSON.parse(
+                JSON.stringify(log["args"], (_, v) =>
+                  typeof v === "bigint" ? v.toString() : v
+                )
+              ),
+              updatedAt: new Date(),
+            },
+          });
           console.log(
-            "and also, args:",
-            JSON.stringify(log["args"], (_, v) =>
-              typeof v === "bigint" ? v.toString() : v
-            )
+            `saved event ${log["eventName"]} for block ${log.blockNumber}`
           );
           captured.inc(1);
         }

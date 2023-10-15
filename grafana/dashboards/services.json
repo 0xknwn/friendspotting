@@ -83,7 +83,7 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 24,
+        "w": 8,
         "x": 0,
         "y": 0
       },
@@ -183,9 +183,9 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 9
+        "w": 16,
+        "x": 8,
+        "y": 0
       },
       "id": 2,
       "options": {
@@ -259,9 +259,37 @@
           "legendFormat": "\"frenbond/captured\"",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "delta(idxr_sync_saved_events_total{service=\"sync\"}[1h])",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "\"sync/saved\"",
+          "range": true,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "delta(idxr_sync_captured_events_total{service=\"sync\"}[1h])",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "\"sync/captured\"",
+          "range": true,
+          "refId": "F"
         }
       ],
-      "title": "Availability",
+      "title": "Indexing Performance",
       "type": "timeseries"
     }
   ],
@@ -273,7 +301,7 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {},
