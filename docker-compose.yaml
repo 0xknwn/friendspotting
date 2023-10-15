@@ -30,6 +30,20 @@ services:
     build:
       context: api/.
 
+  idxr-friendtech:
+    image: idxr
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?schema=postgres
+      - REDIS_HOST=redis
+    command:
+      ["npm", "run", "start:idxr", "--", "-t", "-c", "base", "-i", "friendtech"]
+    depends_on:
+      - db
+      - redis
+    restart: always
+    build:
+      context: api/.
+
   idxr-frendbond:
     image: idxr
     environment:

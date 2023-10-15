@@ -1,15 +1,16 @@
-import type { Trade } from "@prisma/client";
+import type { FriendTechTrade } from "@prisma/client";
 import { checkUser } from "./twitter";
 import { PrismaClient, Prisma } from "@prisma/client";
 import * as dotenv from "dotenv";
 import { exit } from "process";
 import { Log, PublicClient } from "viem";
+import { baseGoerli } from "viem/chains";
 import { address, events } from "./abi/friendtech-events";
 import { _previousEvents } from "./events";
 dotenv.config();
 
-const saveEvent = async (prisma: PrismaClient, t: Trade) => {
-  await prisma.trade.upsert({
+const saveEvent = async (prisma: PrismaClient, t: FriendTechTrade) => {
+  await prisma.friendTechTrade.upsert({
     where: { transactionHash: t.transactionHash },
     update: t,
     create: t,
@@ -37,6 +38,10 @@ const manageEvents = async (
   client: PublicClient,
   logs: Log[]
 ) => {
+  let prefix = "mainnet";
+  if (client.chain === baseGoerli) {
+    prefix = "goerli";
+  }
   for (const log of logs) {
     if (!log.blockNumber) {
       console.log(
@@ -46,8 +51,8 @@ const manageEvents = async (
     }
     try {
       const t = {
+        chain: prefix,
         transactionHash: log.transactionHash,
-        timestamp: 0,
         blockNumber: Number(log.blockNumber),
         transactionIndex: log["transactionIndex"],
         traderAddress: log["args"]["trader"].toLowerCase(),
@@ -64,11 +69,10 @@ const manageEvents = async (
           BigInt(log["args"]["subjectEthAmount"]).toString()
         ),
         supply: Number(log["args"]["supply"]),
-        createdAt: new Date(),
         updatedAt: new Date(),
-      } as Trade;
-      await saveEvent(prisma, t);
+      } as FriendTechTrade;
       await checkUser(prisma, log["args"]["trader"]);
+      await saveEvent(prisma, t);
     } catch (err) {
       console.log("error saving event", err);
       console.log("log", log);

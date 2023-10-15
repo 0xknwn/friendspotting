@@ -8,6 +8,7 @@ datasource db {
 }
 
 model Trade {
+  chain                           String   @default("mainnet")
   transactionHash                 String   @id @unique
   timestamp                       Int
   blockNumber                     Int
@@ -84,6 +85,26 @@ model User {
   updatedAt                        DateTime
 }
 
+model FriendTechTrade {
+  chain                           String   @default("mainnet")
+  transactionHash                 String   @id
+  blockNumber                     Int
+  block                           Block   @relation(fields: [chain, blockNumber], references: [chain, blockNumber])
+  transactionIndex                Int
+  traderAddress                   String
+  subjectAddress                  String
+  isBuy                           Boolean
+  shareAmount                     Int
+  ethAmount                       Decimal  @db.Decimal(65, 0)
+  protocolEthAmount               Decimal  @db.Decimal(65, 0)
+  subjectEthAmount                Decimal  @db.Decimal(65, 0)
+  supply                          Int
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime
+
+  @@unique([subjectAddress, blockNumber(sort: Desc), transactionIndex(sort: Desc)])
+}
+
 model Log {
   transactionHash                 String
   chain                           String
@@ -104,6 +125,7 @@ model Block {
   chain                           String
   blockNumber                     Int
   timestamp                       Int
+  friendTechTrade                 FriendTechTrade[]
 
   @@id([chain, blockNumber])
 }
