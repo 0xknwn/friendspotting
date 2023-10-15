@@ -48,4 +48,5 @@ export const _previousEvents = async (
       console.log(`--- restarting now...`);
     }
   }
+  throw "should not reach this point";
 };
