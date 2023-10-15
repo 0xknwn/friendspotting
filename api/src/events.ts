@@ -32,6 +32,13 @@ export const _previousEvents = async (
   let finalError: any = undefined;
   for (let i = 0; i < retry; i++) {
     try {
+      if (i > 0) {
+        console.log(
+          `--- attempt ${i + 1} to read block between ${
+            toBlock - blockGap
+          } and ${toBlock - 1n}`
+        );
+      }
       const logs = await client.getLogs({
         address,
         event: events,

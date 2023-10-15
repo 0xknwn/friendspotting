@@ -3,8 +3,7 @@ import express, { Request, Response } from "express";
 import morgan from "morgan";
 import { idxHistory, keyHistory, top50, traderHistory } from "./keys";
 import { connect } from "./storage";
-import promBundle from "express-prom-bundle";
-import { admin } from "./admin";
+import { bundle } from "./admin";
 const server = express();
 
 if (!process.env.DATABASE_URL) {
@@ -17,19 +16,7 @@ server.use(express.json());
 server.use(cors());
 server.use(morgan("combined"));
 
-const metricsMiddleware = promBundle({
-  autoregister: false,
-  includeMethod: true,
-  includePath: true,
-  includeStatusCode: true,
-  includeUp: true,
-  metricsApp: admin,
-  customLabels: { application: "friendspotting" },
-  promClient: {
-    collectDefaultMetrics: {},
-  },
-});
-server.use(metricsMiddleware);
+server.use(bundle);
 
 server.get("/keys/:key/history", keyHistory(prisma));
 server.get("/indexes/:idx", idxHistory(prisma));

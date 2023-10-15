@@ -3,7 +3,20 @@ import * as dotenv from "dotenv";
 import { Log, PublicClient } from "viem";
 import { address, events } from "./abi/frenbond-events";
 import { _previousEvents } from "./events";
+import promClient from "prom-client";
 dotenv.config();
+
+const captured = new promClient.Counter({
+  name: "idxr_frenbond_captured_events_total",
+  help: "number of events captured by the idxr",
+});
+
+captured.inc(0);
+const saved = new promClient.Counter({
+  name: "idxr_frenbond_saved_events_total",
+  help: "number of events captured by the idxr",
+});
+saved.inc(0);
 
 const genPreviousEvents = (events: any) => {
   return events.map(
@@ -14,7 +27,7 @@ const genPreviousEvents = (events: any) => {
         toBlock: bigint | undefined = undefined,
         timeout: number = 300_000
       ) => {
-        return await _previousEvents(
+        const logs = await _previousEvents(
           address,
           event,
           client,
@@ -22,6 +35,8 @@ const genPreviousEvents = (events: any) => {
           toBlock,
           timeout
         );
+        captured.inc(logs.length);
+        return logs;
       }
   );
 };
@@ -44,6 +59,7 @@ const genManageEvents = (events: any) => {
               typeof v === "bigint" ? v.toString() : v
             )
           );
+          captured.inc(1);
         }
       }
   );

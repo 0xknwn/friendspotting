@@ -8,13 +8,30 @@ import { baseGoerli } from "viem/chains";
 import { address, events } from "./abi/friendtech-events";
 import { _previousEvents } from "./events";
 import { wait } from "./util";
+import promClient from "prom-client";
 dotenv.config();
+
+const captured = new promClient.Counter({
+  name: "idxr_friendtech_captured_events_total",
+  help: "number of events captured by the idxr",
+});
+
+const saved = new promClient.Counter({
+  name: "idxr_friendtech_saved_events_total",
+  help: "number of events captured by the idxr",
+});
 
 const saveEvent = async (prisma: PrismaClient, t: FriendTechTrade) => {
   const retry = 3;
   let finalError: any = undefined;
   for (let i = 0; i < retry; i++) {
     try {
+      if (i > 0) {
+        console.log(
+          `--- attempt ${i + 1} to store data for tx`,
+          t.transactionHash
+        );
+      }
       await prisma.friendTechTrade.upsert({
         where: { transactionHash: t.transactionHash },
         update: t,
@@ -38,7 +55,7 @@ const previousEvents = async (
   toBlock: bigint | undefined = undefined,
   timeout: number = 300_000
 ) => {
-  return await _previousEvents(
+  const logs = await _previousEvents(
     address,
     events,
     client,
@@ -46,6 +63,8 @@ const previousEvents = async (
     toBlock,
     timeout
   );
+  captured.inc(logs.length);
+  return logs;
 };
 
 const manageEvents = async (
@@ -88,6 +107,7 @@ const manageEvents = async (
       } as FriendTechTrade;
       await checkUser(prisma, log["args"]["trader"]);
       await saveEvent(prisma, t);
+      saved.inc(1);
     } catch (err) {
       console.log("error saving event", err);
       console.log("log", log);
