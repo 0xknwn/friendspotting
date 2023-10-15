@@ -1,5 +1,6 @@
 import { lastBlockFromCache } from "./block";
 import { type PublicClient } from "viem";
+import { wait } from "./util";
 
 import type { Address } from "viem";
 
@@ -26,11 +27,25 @@ export const _previousEvents = async (
     console.warn(`exit(1)`);
     process.exit(1);
   }
-  const logs = await client.getLogs({
-    address,
-    event: events,
-    fromBlock: toBlock - blockGap,
-    toBlock: toBlock - 1n,
-  });
-  return logs;
+
+  const retry = 3;
+  for (let i = 0; i < retry; i++) {
+    try {
+      const logs = await client.getLogs({
+        address,
+        event: events,
+        fromBlock: toBlock - blockGap,
+        toBlock: toBlock - 1n,
+      });
+      return logs;
+    } catch (err) {
+      if (i === retry) {
+        throw err;
+      }
+      console.log(`--- retry on error; log:`, err);
+      console.log(err);
+      wait(10000);
+      console.log(`--- restarting now...`);
+    }
+  }
 };
