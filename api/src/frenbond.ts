@@ -24,7 +24,7 @@ const errors = new promClient.Counter({
   name: "idxr_frenbond_errored_events_total",
   help: "number of events errored by the idxr",
 });
-saved.inc(0);
+errors.inc(0);
 
 const genPreviousEvents = (events: any) => {
   return events.map(
@@ -74,45 +74,54 @@ const genManageEvents = (events: any) => {
             errors.inc(1);
             throw "missing data for log";
           }
-          prisma.log.upsert({
-            where: {
-              chain_eventName_blockNumber_transactionIndex_eventIndex: {
+          try {
+            await prisma.log.upsert({
+              where: {
+                chain_eventName_blockNumber_transactionIndex_eventIndex: {
+                  chain: prefix,
+                  eventName: log.transactionHash,
+                  blockNumber: Number(log.blockNumber),
+                  transactionIndex: log.transactionIndex,
+                  eventIndex: log.logIndex,
+                },
+              },
+              create: {
+                transactionHash: log.transactionHash as Address,
                 chain: prefix,
-                eventName: log.transactionHash,
+                eventName: log["eventName"],
                 blockNumber: Number(log.blockNumber),
                 transactionIndex: log.transactionIndex,
                 eventIndex: log.logIndex,
+                args: JSON.parse(
+                  JSON.stringify(log["args"], (_, v) =>
+                    typeof v === "bigint" ? v.toString() : v
+                  )
+                ),
+                updatedAt: new Date(),
               },
-            },
-            create: {
-              transactionHash: log.transactionHash as Address,
-              chain: prefix,
-              eventName: log["eventName"],
-              blockNumber: Number(log.blockNumber),
-              transactionIndex: log.transactionIndex,
-              eventIndex: log.logIndex,
-              args: JSON.parse(
-                JSON.stringify(log["args"], (_, v) =>
-                  typeof v === "bigint" ? v.toString() : v
-                )
-              ),
-              updatedAt: new Date(),
-            },
-            update: {
-              eventIndex: log.logIndex,
-              eventName: log["eventName"],
-              args: JSON.parse(
-                JSON.stringify(log["args"], (_, v) =>
-                  typeof v === "bigint" ? v.toString() : v
-                )
-              ),
-              updatedAt: new Date(),
-            },
-          });
-          console.log(
-            `saved event ${log["eventName"]} for block ${log.blockNumber}`
-          );
-          captured.inc(1);
+              update: {
+                eventIndex: log.logIndex,
+                eventName: log["eventName"],
+                args: JSON.parse(
+                  JSON.stringify(log["args"], (_, v) =>
+                    typeof v === "bigint" ? v.toString() : v
+                  )
+                ),
+                updatedAt: new Date(),
+              },
+            });
+            captured.inc(1);
+            console.log(
+              `saved event ${log["eventName"]} for block ${log.blockNumber}`
+            );
+          } catch (err) {
+            console.log(
+              `could not save the event ${log["eventName"]} for block ${log.blockNumber}`
+            );
+            errors.inc(1);
+            console.log(err);
+            throw err;
+          }
         }
       }
   );
