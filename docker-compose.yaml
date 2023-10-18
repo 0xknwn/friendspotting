@@ -17,19 +17,6 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
 
-  idxr:
-    image: idxr
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=postgres
-      REDIS_HOST: redis
-    command: ["npm", "run", "start:idxr"]
-    depends_on:
-      - db
-      - redis
-    restart: always
-    build:
-      context: api/.
-
   idxr-friendtech:
     image: idxr
     environment:
