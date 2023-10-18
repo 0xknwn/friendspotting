@@ -82,7 +82,7 @@ const start = async () => {
       manager = eventManager.syncer;
       break;
     case "friendtech":
-      manager = eventManager.frenbond;
+      manager = eventManager.friendtech;
       break;
     default:
       throw `unknown event manager value for ${indexer}`;
