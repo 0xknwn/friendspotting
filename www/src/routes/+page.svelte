@@ -1,6 +1,7 @@
 <script lang="ts">
   import Jazzicon from "../components/Jazzicon.svelte";
   import Price from "../components/Price.svelte";
+  import Trending from "../components/Trending.svelte";
   export let data;
 
   function shortAddress(address: string) {
@@ -47,6 +48,13 @@
       </li>
     {/each}
   </ul>
+</div>
+
+<div class="bg-white shadow-md rounded-md overflow-hidden max-w-lg min-w-lg mx-auto mt-16 min-w-full">
+  <div class="bg-gray-100 py-2 px-4">
+    <h2 class="text-xl font-semibold text-gray-800">today trending</h2>
+  </div>
+  <Trending />
 </div>
 
 <style lang="postcss">
