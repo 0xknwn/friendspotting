@@ -25,7 +25,7 @@
         <div class="flex flex-col items-center mr-8">
           <div class="h-18 mx-auto px-auto">
             {#if picture}
-              <img src={picture} alt={traderAddress} />
+              <img src={picture} alt={traderAddress} style="width: 64px;" />
             {:else}
               <Jazzicon address={traderAddress} size={64} />
             {/if}
