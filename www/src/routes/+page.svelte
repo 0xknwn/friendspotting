@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { image } from "@observablehq/plot";
   import Jazzicon from "../components/Jazzicon.svelte";
   import Price from "../components/Price.svelte";
   import Trending from "../components/Trending.svelte";
@@ -19,13 +20,19 @@
     <h2 class="text-xl font-semibold text-gray-800">top traders of the day</h2>
   </div>
   <ul class="divide-y divide-gray-200">
-    {#each data.top50 as { traderAddress, realized, potential }, i}
+    {#each data.top50 as { picture, realized, potential, traderAddress }}
       <li class="flex items-center py-4 px-6">
         <div class="flex flex-col items-center mr-8">
           <div class="h-18 mx-auto px-auto">
-            <Jazzicon address={traderAddress} size={64} />
+            {#if picture}
+              <img src={picture} alt={traderAddress} style="width: 64px;" />
+            {:else}
+              <Jazzicon address={traderAddress} size={64} />
+            {/if}
           </div>
-          <a href="https://www.friend.tech/trades/{traderAddress}">{@html shortAddress(traderAddress)}</a>
+          <a href="https://www.friend.tech/trades/{traderAddress}">
+            {@html shortAddress(traderAddress)}
+          </a>
         </div>
         <div class="flex-1">
           <dl>
@@ -40,9 +47,9 @@
             </dd>
           </dl>
           <div class="flex flex-row justify-between">
-            <Price price={realized} currency="ETH" />
+            <Price price={realized} />
             <div class="text-xl font-extrabold text-gray-300">ETH</div>
-            <Price price={potential} currency="ETH" />
+            <Price price={potential} />
           </div>
         </div>
       </li>
